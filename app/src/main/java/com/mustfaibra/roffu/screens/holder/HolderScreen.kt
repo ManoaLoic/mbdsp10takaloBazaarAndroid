@@ -35,9 +35,11 @@ import com.mustfaibra.roffu.components.CustomSnackBar
 import com.mustfaibra.roffu.models.CartItem
 import com.mustfaibra.roffu.models.User
 import com.mustfaibra.roffu.providers.LocalNavHost
+import com.mustfaibra.roffu.screens.ajoutobjet.AjoutObjetScreen
 import com.mustfaibra.roffu.screens.bookmarks.BookmarksScreen
 import com.mustfaibra.roffu.screens.cart.CartScreen
 import com.mustfaibra.roffu.screens.checkout.CheckoutScreen
+import com.mustfaibra.roffu.screens.ficheobjet.FicheObjetScreen
 import com.mustfaibra.roffu.screens.home.HomeScreen
 import com.mustfaibra.roffu.screens.locationpicker.LocationPickerScreen
 import com.mustfaibra.roffu.screens.login.LoginScreen
@@ -136,7 +138,7 @@ fun HolderScreen(
             bottomNavigationContent = {
                 if (
                     currentRouteAsState in destinations.map { it.route }
-                    || currentRouteAsState == Screen.Cart.route
+                    || currentRouteAsState == Screen.AjoutObjet.route
                 ) {
                     AppBottomNav(
                         activeRoute = currentRouteAsState,
@@ -412,6 +414,17 @@ fun ScaffoldSection(
                         onUpdateBookmarksState = onUpdateBookmarkRequest,
                         onBackRequested = onBackRequested,
                     )
+                }
+                composable(Screen.AjoutObjet.route) {
+                    onStatusBarColorChange(MaterialTheme.colors.background)
+                    AjoutObjetScreen(navController = controller)
+                }
+                composable(
+                    "ficheobjet/{objectId}",
+                    arguments = listOf(navArgument("objectId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val objectId = backStackEntry.arguments?.getInt("objectId") ?: 0
+                    FicheObjetScreen(navController = controller, objectId)
                 }
             }
             /** Now we lay down our bottom navigation component */

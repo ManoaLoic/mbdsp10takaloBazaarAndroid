@@ -1,44 +1,24 @@
 package com.mustfaibra.roffu.models
 
-import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import com.mustfaibra.roffu.utils.getFormattedDate
 import java.util.*
 
-data class Object (
-    @Expose
-    @SerializedName("id")
-    val id: Int,
+data class Object(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("description") val description: String?,
+    @SerializedName("image") val image: String?,
+    @SerializedName("created_at") val createdAt: Date,
+    @SerializedName("updated_at") val updatedAt: Date,
+    @SerializedName("status") val status: String,
+    @SerializedName("user_id") val userId: Int,
+    @SerializedName("category_id") val categoryId: Int,
+    @SerializedName("deleted_At") val deletedAt: Date?
+)
 
-    @Expose
-    @SerializedName("name")
+data class ObjectRequest(
     val name: String,
-
-    @Expose
-    @SerializedName("description")
     val description: String,
-
-    @Expose
-    @SerializedName("updated_at:")
-    val updated_at: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
-
-    @Expose
-    @SerializedName("created_at")
-    val created_at: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
-
-    @Expose
-    @SerializedName("status")
-    val status: String,
-
-    @Expose
-    @SerializedName("user_id")
-    val user_id: Int,
-
-    @Expose
-    @SerializedName("category_id")
     val category_id: Int,
-
-    @Expose
-    @SerializedName("deleted_at")
-    val deletedAt: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
+    val image_file: String
 )

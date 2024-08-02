@@ -2,6 +2,8 @@ package com.mustfaibra.roffu.sealed
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import com.mustfaibra.roffu.R
 
 sealed class Screen(
@@ -94,4 +96,11 @@ sealed class Screen(
         title = R.string.terms_and_conditions,
         icon = R.drawable.ic_terms,
     )
+
+    object AjoutObjet : Screen(
+        route = "ajoutobjet",
+        title = R.string.ajout_objet,
+        icon = R.drawable.ic_add
+    )
+
 }
