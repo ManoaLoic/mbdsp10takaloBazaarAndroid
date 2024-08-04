@@ -7,18 +7,25 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustfaibra.roffu.api.ObjectService
-import com.mustfaibra.roffu.api.RetrofitInstance
+import com.mustfaibra.roffu.models.Draft
 import com.mustfaibra.roffu.models.ObjectRequest
+import com.mustfaibra.roffu.data.AppDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import android.util.Base64
 import androidx.navigation.NavHostController
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class AjoutObjetViewModel : ViewModel() {
-
-    private val objectService: ObjectService = RetrofitInstance.createService(ObjectService::class.java)
+@HiltViewModel
+class AjoutObjetViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val objectService: ObjectService,
+    private val database: AppDatabase
+) : ViewModel() {
 
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> get() = _toastMessage
@@ -26,12 +33,14 @@ class AjoutObjetViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> get() = _isLoading
 
+    private val _drafts = MutableStateFlow<List<Draft>>(emptyList())
+    val drafts: StateFlow<List<Draft>> get() = _drafts
+
     fun createObject(
         name: String,
         description: String,
         categoryId: Int,
         imageUri: Uri?,
-        context: Context,
         navController: NavHostController
     ) {
         viewModelScope.launch {
@@ -54,18 +63,55 @@ class AjoutObjetViewModel : ViewModel() {
                 val response = objectService.createObject(objectRequest)
                 if (response.isSuccessful) {
                     val newObject = response.body()
-                    _toastMessage.value = "Object created successfully"
+                    _toastMessage.value = "Object créé avec succès"
                     newObject?.id?.let {
                         navController.navigate("ficheobjet/$it")
+                        // Delete draft after successful submission
+                        drafts.value.firstOrNull { draft ->
+                            draft.name == name && draft.description == description && draft.categoryId == categoryId && draft.imageUri == imageUri.toString()
+                        }?.let { draft ->
+                            deleteDraft(draft.id)
+                        }
                     }
                 } else {
-                    _toastMessage.value = "Failed to create object: ${response.message()}"
+                    _toastMessage.value = "Erreur: ${response.message()}"
                 }
             } catch (e: Exception) {
                 _toastMessage.value = "Exception: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    fun saveDraft(
+        name: String,
+        description: String,
+        categoryId: Int,
+        imageUri: Uri
+    ) {
+        viewModelScope.launch {
+            val draft = Draft(
+                name = name,
+                description = description,
+                categoryId = categoryId,
+                imageUri = imageUri.toString()
+            )
+            database.draftDao().insertDraft(draft)
+            _toastMessage.value = "Brouillon enregistré"
+        }
+    }
+
+    fun loadDrafts() {
+        viewModelScope.launch {
+            _drafts.value = database.draftDao().getAllDrafts()
+        }
+    }
+
+    fun deleteDraft(draftId: Int) {
+        viewModelScope.launch {
+            database.draftDao().deleteDraft(draftId)
+            loadDrafts()
         }
     }
 

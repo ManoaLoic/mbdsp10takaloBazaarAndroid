@@ -4,12 +4,17 @@ buildscript {
         hilt_plugin_version = '2.43.2'
         kotlin_version = '1.7.0'
     }
+    repositories {
+        google()
+        mavenCentral()
+    }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_plugin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        classpath "com.android.tools.build:gradle:7.2.2"
     }
-}// Top-level build file where you can add configuration options common to all sub-projects/modules.
+}
 
 plugins {
     id 'com.android.application' version '7.2.2' apply false
