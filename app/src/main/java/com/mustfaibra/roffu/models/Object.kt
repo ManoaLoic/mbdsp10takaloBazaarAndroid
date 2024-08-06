@@ -13,7 +13,9 @@ data class Object(
     @SerializedName("status") val status: String,
     @SerializedName("user_id") val userId: Int,
     @SerializedName("category_id") val categoryId: Int,
-    @SerializedName("deleted_At") val deletedAt: Date?
+    @SerializedName("deleted_At") val deletedAt: Date?,
+    @SerializedName("user") val user: CustomUser? = null,
+    @SerializedName("category") val category: Category? = null
 )
 
 data class ObjectRequest(
@@ -21,4 +23,14 @@ data class ObjectRequest(
     val description: String,
     val category_id: Int,
     val image_file: String
+)
+
+data class ObjectResponse(
+    val objects: List<Object>,
+    val totalPages: Int,
+    val currentPage: Int
+)
+
+data class ObjectListResponse(
+    val data: ObjectResponse
 )

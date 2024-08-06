@@ -31,7 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -50,6 +52,7 @@ import timber.log.Timber
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun HomeScreen(
+    navController: NavHostController,
     homeViewModel: HomeViewModel = hiltViewModel(),
     cartOffset: IntOffset,
     cartProductsIds: List<Int>,
@@ -166,7 +169,7 @@ fun HomeScreen(
 
                         },
                         onImeActionClicked = {
-                            /** We should run the search now */
+                            navController.navigate("objectsearch?query=${searchQuery}")
                         }
                     )
                 }
@@ -240,8 +243,8 @@ fun HomeScreen(
 @Composable
 fun SearchField(
     value: String,
-    onValueChange: (value: String) -> Unit,
-    onFocusChange: (hadFocus: Boolean) -> Unit,
+    onValueChange: (String) -> Unit,
+    onFocusChange: (Boolean) -> Unit,
     onImeActionClicked: KeyboardActionScope.() -> Unit,
 ) {
     CustomInputField(
@@ -249,8 +252,11 @@ fun SearchField(
             .fillMaxWidth(),
         value = value,
         onValueChange = onValueChange,
-        placeholder = "What are you looking for?",
-        textStyle = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.Medium),
+        placeholder = "Qu'est ce que vous recherchez?",
+        textStyle = MaterialTheme.typography.caption.copy(
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp
+        ),
         padding = PaddingValues(
             horizontal = Dimension.pagePadding,
             vertical = Dimension.pagePadding.times(0.7f),

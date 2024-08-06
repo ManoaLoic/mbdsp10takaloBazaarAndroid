@@ -1,4 +1,4 @@
-package com.mustfaibra.roffu.screens.ajoutobjet
+package com.mustfaibra.roffu.screens.category
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

@@ -12,3 +12,7 @@ val Orange = Color(0xFFFF9800)
 val LightPink = Color(0xFFFFD9D9)
 val DarkPink = Color(0xFFB19696)
 val SomeGreenDegree = Color(0xFFD1DABB)
+
+val MainColor = Color(0xFFBC8246)  // Main color
+val SecondColor = Color(0xFF8A8F6A)  // Second color
+val ThirdColor = Color(0xFF383838)  // Third color

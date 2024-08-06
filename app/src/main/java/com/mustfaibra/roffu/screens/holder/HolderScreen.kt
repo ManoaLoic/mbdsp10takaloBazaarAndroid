@@ -44,6 +44,7 @@ import com.mustfaibra.roffu.screens.home.HomeScreen
 import com.mustfaibra.roffu.screens.locationpicker.LocationPickerScreen
 import com.mustfaibra.roffu.screens.login.LoginScreen
 import com.mustfaibra.roffu.screens.notifications.NotificationScreen
+import com.mustfaibra.roffu.screens.objectsearch.ObjectSearchScreen
 import com.mustfaibra.roffu.screens.onboard.OnboardScreen
 import com.mustfaibra.roffu.screens.orderhistory.OrdersHistoryScreen
 import com.mustfaibra.roffu.screens.productdetails.ProductDetailsScreen
@@ -63,7 +64,7 @@ fun HolderScreen(
     holderViewModel: HolderViewModel = hiltViewModel(),
 ) {
     val destinations = remember {
-        listOf(Screen.Home, Screen.Notifications, Screen.Bookmark, Screen.Profile)
+        listOf(Screen.Home, Screen.Profile)
     }
 
     /** Our navigation controller that the MainActivity provides */
@@ -298,6 +299,7 @@ fun ScaffoldSection(
                         onProductClicked = onShowProductRequest,
                         onCartStateChanged = onUpdateCartRequest,
                         onBookmarkStateChanged = onUpdateBookmarkRequest,
+                        navController = controller
                     )
                 }
                 composable(Screen.Notifications.route) {
@@ -425,6 +427,16 @@ fun ScaffoldSection(
                 ) { backStackEntry ->
                     val objectId = backStackEntry.arguments?.getInt("objectId") ?: 0
                     FicheObjetScreen(navController = controller, objectId)
+                }
+                composable(
+                    route = "objectsearch?query={query}",
+                    arguments = listOf(navArgument("query") {
+                        type = NavType.StringType
+                        nullable = true
+                    })
+                ) { backStackEntry ->
+                    val query = backStackEntry.arguments?.getString("query") ?: ""
+                    ObjectSearchScreen(navController = controller, searchQuery = query)
                 }
             }
             /** Now we lay down our bottom navigation component */

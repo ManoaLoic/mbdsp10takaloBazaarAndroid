@@ -10,12 +10,8 @@ import androidx.compose.ui.unit.sp
 import com.mustfaibra.roffu.R
 
 val font = FontFamily(
-    Font(resId = R.font.poppins_light, weight = FontWeight.ExtraLight, style = FontStyle.Normal),
-    Font(resId = R.font.poppins_black, weight = FontWeight.Black, style = FontStyle.Normal),
-    Font(resId = R.font.poppins_regular, weight = FontWeight.Normal, style = FontStyle.Normal),
-    Font(resId = R.font.poppin_medium, weight = FontWeight.Medium, style = FontStyle.Normal),
-    Font(resId = R.font.poppins_bold, weight = FontWeight.SemiBold, style = FontStyle.Normal),
-    Font(resId = R.font.poppins_extra_bold, weight = FontWeight.Bold, style = FontStyle.Normal),
+    Font(resId = R.font.asul_font_family, weight = FontWeight.Bold, style = FontStyle.Normal),
+    Font(resId = R.font.autour_one_font_family, weight = FontWeight.Bold, style = FontStyle.Normal),
 )
 
 // Set of Material typography styles to start with
@@ -58,11 +54,11 @@ val Typography = Typography(
     ),
     subtitle1 = TextStyle(
         fontWeight = FontWeight.Light,
-        fontSize = 15.sp
+        fontSize = 14.sp
     ),
     subtitle2 = TextStyle(
         fontWeight = FontWeight.Light,
-        fontSize = 14.sp
+        fontSize = 12.sp
     ),
     defaultFontFamily = font,
 )
