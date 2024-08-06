@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
-    private var token: String? = """eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVtYXJ0aW5AZXhhbXBsZS5jb20iLCJpZCI6NTUsImZpcnN0X25hbWUiOiJFbW1hIG1vZGlmIiwibGFzdF9uYW1lIjoiRW1tYSIsInVzZXJuYW1lIjoiZW1hcnRpbiIsInR5cGUiOiJVU0VSIiwianRpIjoiNTUtMTcyMjYzNzI0MTQxNiIsImlhdCI6MTcyMjYzNzI0MSwiZXhwIjoxNzIyODEwMDQxfQ.-irrIDhxBRpRXfnKMQnQlnkQyeZ1i0HvoYTMw6twcw0"""
+    private var token: String? = """eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVtYXJ0aW5AZXhhbXBsZS5jb20iLCJpZCI6NTUsImZpcnN0X25hbWUiOiJFbW1hIG1vZGlmIiwibGFzdF9uYW1lIjoiRW1tYSIsInVzZXJuYW1lIjoiZW1hcnRpbiIsInR5cGUiOiJVU0VSIiwianRpIjoiNTUtMTcyMjk1ODIwMTY4MCIsImlhdCI6MTcyMjk1ODIwMSwiZXhwIjoxNzIzMTMxMDAxfQ.ZvVZSSS5AXYTtlUuriagKeTYr5tNWkYtiQlVHvLQbqY"""
 
     fun setToken(newToken: String) {
         token = newToken

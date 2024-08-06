@@ -1,42 +1,34 @@
 package com.mustfaibra.roffu.screens.objectsearch
 
-import android.content.Context
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.Drafts
-import androidx.compose.material.icons.rounded.Photo
-import androidx.compose.material.icons.rounded.PhotoCamera
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.shadow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
 import com.mustfaibra.roffu.components.ObjectCard
 import com.mustfaibra.roffu.models.Category
-import kotlinx.coroutines.launch
-import com.mustfaibra.roffu.models.Object
 import com.mustfaibra.roffu.screens.category.CategoryViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun ObjectSearchScreen(
@@ -46,12 +38,13 @@ fun ObjectSearchScreen(
 ) {
     val objects by objectSearchViewModel.objects.collectAsState()
     val isLoading by objectSearchViewModel.isLoading.collectAsState()
+    val hasMorePages by objectSearchViewModel.hasMorePages.collectAsState()
     val categoryViewModel: CategoryViewModel = hiltViewModel()
     val categories by categoryViewModel.categories.collectAsState()
 
     LaunchedEffect(searchQuery) {
-        objectSearchViewModel.name = searchQuery
-        objectSearchViewModel.loadObjects()
+        objectSearchViewModel.name.value = searchQuery
+        objectSearchViewModel.loadObjects(resetPage = true)
     }
 
     Scaffold(
@@ -73,13 +66,16 @@ fun ObjectSearchScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (isLoading) {
+                if (isLoading && objects.isEmpty()) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                 } else {
                     if (objects.isEmpty()) {
                         Text("Aucun objet trouvé", modifier = Modifier.align(Alignment.CenterHorizontally))
                     } else {
+                        val gridState = rememberLazyGridState()
+
                         LazyVerticalGrid(
+                            state = gridState,
                             columns = GridCells.Fixed(2),
                             contentPadding = PaddingValues(4.dp),
                             modifier = Modifier.fillMaxSize(),
@@ -89,6 +85,23 @@ fun ObjectSearchScreen(
                             items(objects) { obj ->
                                 ObjectCard(obj, false, navController)
                             }
+                        }
+
+                        // Infinite scroll
+                        val coroutineScope = rememberCoroutineScope()
+                        LaunchedEffect(gridState) {
+                            coroutineScope.launch {
+                                snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull() }
+                                    .collectLatest { lastVisibleItem ->
+                                        if (lastVisibleItem != null && lastVisibleItem.index == objects.size - 1 && hasMorePages && !isLoading) {
+                                            objectSearchViewModel.loadNextPage()
+                                        }
+                                    }
+                            }
+                        }
+
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                         }
                     }
                 }
@@ -102,8 +115,13 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
     var expanded by remember { mutableStateOf(true) }
     var menuExpanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
+    var orderMenuExpanded by remember { mutableStateOf(false) }
+    var selectedOrder by remember { mutableStateOf("le plus récent") }
 
-    Column {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(8.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -121,17 +139,21 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
         if (expanded) {
             Column(modifier = Modifier.padding(8.dp)) {
                 OutlinedTextField(
-                    value = viewModel.name,
-                    onValueChange = { viewModel.name = it },
+                    value = viewModel.name.value,
+                    onValueChange = { viewModel.name.value = it },
                     label = { Text("Nom") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = viewModel.description,
-                    onValueChange = { viewModel.description = it },
+                    value = viewModel.description.value,
+                    onValueChange = { viewModel.description.value = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 100.dp),
+                    maxLines = 5,
+                    singleLine = false
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -172,24 +194,63 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
 
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = viewModel.createdAtStart,
-                    onValueChange = { viewModel.createdAtStart = it },
-                    label = { Text("Date de début") },
+                    value = viewModel.createdAtStart.value,
+                    onValueChange = { viewModel.createdAtStart.value = it },
+                    label = { Text("Date de création min") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = viewModel.createdAtEnd,
-                    onValueChange = { viewModel.createdAtEnd = it },
-                    label = { Text("Date de fin") },
+                    value = viewModel.createdAtEnd.value,
+                    onValueChange = { viewModel.createdAtEnd.value = it },
+                    label = { Text("Date de création max") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Dropdown for order selection
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = selectedOrder,
+                        onValueChange = {},
+                        label = { Text("Ordre") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { orderMenuExpanded = true },
+                        readOnly = true,
+                        trailingIcon = {
+                            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown", modifier = Modifier.clickable { orderMenuExpanded = true })
+                        }
+                    )
+                    DropdownMenu(
+                        expanded = orderMenuExpanded,
+                        onDismissRequest = { orderMenuExpanded = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        DropdownMenuItem(onClick = {
+                            selectedOrder = "le plus récent"
+                            viewModel.loadObjects(resetPage = true)
+                            orderMenuExpanded = false
+                        }) {
+                            Text(text = "le plus récent")
+                        }
+                        DropdownMenuItem(onClick = {
+                            selectedOrder = "le plus ancien"
+                            viewModel.sortBy = "ASC"
+                            viewModel.loadObjects(resetPage = true)
+                            orderMenuExpanded = false
+                        }) {
+                            Text(text = "le plus ancien")
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Button(onClick = { viewModel.loadObjects() }) {
+                    Button(onClick = { viewModel.loadObjects(resetPage = true) }) {
                         Icon(imageVector = Icons.Default.Search, contentDescription = "Filtrer")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Filtrer")

@@ -20,8 +20,8 @@ interface ObjectService {
     @GET("objects")
     suspend fun getObjects(
         @Query("page") pageNo: Int,
-        @Query("size") pageSize: Int,
-        @Query("sort") sortBy: String,
+        @Query("limit") pageSize: Int,
+        @Query("order_direction") sortBy: String,
         @Query("name") name: String?,
         @Query("description") description: String?,
         @Query("category_id") categoryId: Int?,

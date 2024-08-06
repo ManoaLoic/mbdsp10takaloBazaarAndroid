@@ -1,12 +1,11 @@
 package com.mustfaibra.roffu.screens.objectsearch
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustfaibra.roffu.api.ObjectService
-import com.mustfaibra.roffu.models.Category
 import com.mustfaibra.roffu.models.Object
-import com.mustfaibra.roffu.screens.category.CategoryViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,47 +25,63 @@ class ObjectSearchViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> get() = _isLoading
 
-    var name: String = ""
-    var description: String = ""
+    private val _hasMorePages = MutableStateFlow(true)
+    val hasMorePages: StateFlow<Boolean> get() = _hasMorePages
+
+    var name = mutableStateOf("")
+    var description = mutableStateOf("")
     var categoryId: Int? = null
-    var createdAtStart: String = ""
-    var createdAtEnd: String = ""
-    var sortBy: String = "asc"
+    var createdAtStart = mutableStateOf("")
+    var createdAtEnd = mutableStateOf("")
+    var sortBy: String = "DESC"
     var pageNo: Int = 1
-    var pageSize: Int = 12
+    var pageSize: Int = 20
 
-//    init {
-//        loadObjects()
-//    }
+    fun loadObjects(resetPage: Boolean = false) {
+        if (_isLoading.value) return
 
-    fun loadObjects() {
+        if (resetPage) {
+            pageNo = 1
+            _objects.value = emptyList()
+        }
+
         _isLoading.value = true
         viewModelScope.launch {
             val response = objectService.getObjects(
                 pageNo,
                 pageSize,
                 sortBy,
-                name.ifBlank { null },
-                description.ifBlank { null },
+                name.value.ifBlank { null },
+                description.value.ifBlank { null },
                 categoryId,
-                createdAtStart.ifBlank { null },
-                createdAtEnd.ifBlank { null }
+                createdAtStart.value.ifBlank { null },
+                createdAtEnd.value.ifBlank { null }
             )
             if (response.isSuccessful) {
-                _objects.value = response.body()?.data?.objects ?: emptyList()
+                response.body()?.data?.let { data ->
+                    _objects.value = _objects.value + data.objects
+                    _hasMorePages.value = data.currentPage < data.totalPages
+                }
             } else {
-                _objects.value = emptyList()
+                _hasMorePages.value = false
             }
             _isLoading.value = false
         }
     }
 
     fun resetFilters() {
-        name = ""
-        description = ""
+        name.value = ""
+        description.value = ""
         categoryId = null
-        createdAtStart = ""
-        createdAtEnd = ""
-        loadObjects()
+        createdAtStart.value = ""
+        createdAtEnd.value = ""
+        loadObjects(resetPage = true)
+    }
+
+    fun loadNextPage() {
+        if (_hasMorePages.value) {
+            pageNo++
+            loadObjects()
+        }
     }
 }

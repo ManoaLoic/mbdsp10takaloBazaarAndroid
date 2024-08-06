@@ -135,8 +135,12 @@ fun AjoutObjetScreen(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = showErrors && description.isEmpty()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 100.dp),
+                    isError = showErrors && description.isEmpty(),
+                    maxLines = 5,
+                    singleLine = false
                 )
                 if (showErrors && description.isEmpty()) {
                     Text("Description est requis", color = Color.Red, style = MaterialTheme.typography.caption)
