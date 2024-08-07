@@ -34,14 +34,6 @@ interface RoomDao {
     suspend fun insertSize(productSize: ProductSize)
 
 
-    /** Advertisements operations */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAdvertisement(advertisement: Advertisement)
-
-    @Query("SELECT * FROM advertisement")
-    suspend fun getAdvertisements(): List<Advertisement>
-
-
     /** All Cart operations */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCartItem(cartItem: CartItem)

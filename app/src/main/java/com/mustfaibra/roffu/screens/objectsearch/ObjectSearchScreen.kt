@@ -3,6 +3,7 @@ package com.mustfaibra.roffu.screens.objectsearch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -20,10 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.shadow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import coil.compose.rememberImagePainter
 import com.mustfaibra.roffu.components.ObjectCard
 import com.mustfaibra.roffu.models.Category
 import com.mustfaibra.roffu.screens.category.CategoryViewModel
@@ -85,6 +84,19 @@ fun ObjectSearchScreen(
                             items(objects) { obj ->
                                 ObjectCard(obj, false, navController)
                             }
+
+                            if (hasMorePages && isLoading) {
+                                item(span = { GridItemSpan(2) }) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(200.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                            }
                         }
 
                         // Infinite scroll
@@ -98,10 +110,6 @@ fun ObjectSearchScreen(
                                         }
                                     }
                             }
-                        }
-
-                        if (isLoading) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                         }
                     }
                 }
@@ -118,9 +126,10 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
     var orderMenuExpanded by remember { mutableStateOf(false) }
     var selectedOrder by remember { mutableStateOf("le plus récent") }
 
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -176,6 +185,13 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
                         onDismissRequest = { menuExpanded = false },
                         modifier = Modifier.fillMaxWidth()
                     ) {
+                        DropdownMenuItem(onClick = {
+                            viewModel.categoryId = null
+                            selectedCategory = null
+                            menuExpanded = false
+                        }) {
+                            Text(text = "Toutes les catégories")
+                        }
                         categories.forEach { category ->
                             DropdownMenuItem(onClick = {
                                 viewModel.categoryId = category.id
@@ -229,6 +245,7 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
                     ) {
                         DropdownMenuItem(onClick = {
                             selectedOrder = "le plus récent"
+                            viewModel.sortBy = "DESC"
                             viewModel.loadObjects(resetPage = true)
                             orderMenuExpanded = false
                         }) {

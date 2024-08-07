@@ -11,7 +11,6 @@ import javax.inject.Provider
 
 @Database(
     entities = [
-        Advertisement::class,
         Manufacturer::class,
         Review::class,
         User::class,
@@ -28,7 +27,7 @@ import javax.inject.Provider
         ProductColor::class,
         ProductSize::class,
     ],
-    version = 1, exportSchema = false)
+    version = 2, exportSchema = false)
 abstract class RoomDb : RoomDatabase() {
 
     /** A function that used to retrieve Room's related dao instance */
@@ -43,11 +42,6 @@ abstract class RoomDb : RoomDatabase() {
         private val manufacturers = listOf(
             Manufacturer(id = 1, name = "Nike", icon = R.drawable.ic_nike),
             Manufacturer(id = 2, name = "Adidas", icon = R.drawable.adidas_48),
-        )
-        private val advertisements = listOf(
-            Advertisement(1, R.drawable.air_huarache_gold_black_ads, 1, 0),
-            Advertisement(2, R.drawable.pegasus_trail_gortex_ads, 2, 0),
-            Advertisement(3, R.drawable.blazer_low_black_ads, 3, 0),
         )
         private val nikeProducts = listOf(
             Product(
@@ -235,12 +229,6 @@ abstract class RoomDb : RoomDatabase() {
             scope.launch {
                 manufacturers.forEach {
                     dao.insertManufacturer(it)
-                }
-            }
-            /** insert advertisements */
-            scope.launch {
-                advertisements.forEach {
-                    dao.insertAdvertisement(it)
                 }
             }
             /** Insert products */
