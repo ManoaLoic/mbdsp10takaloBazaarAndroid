@@ -1,22 +1,18 @@
 package com.mustfaibra.roffu.screens.splash
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustfaibra.roffu.R
 import com.mustfaibra.roffu.sealed.Screen
@@ -65,29 +61,12 @@ fun SplashScreen(
                 onSplashFinished(Screen.Onboard)
             }
         }
-        val appName = stringResource(id = R.string.app_name)
-        Text(
-            /** Manipulate app's name with a different text styles */
-            text = buildAnnotatedString {
-                append(appName.take(2))
-                withStyle(
-                    style = MaterialTheme.typography.h1
-                        .copy(
-                            fontSize = 64.sp,
-                            color = MaterialTheme.colors.primary,
-                            fontFamily = FontFamily.Cursive,
-                        ).toSpanStyle(),
-                ){
-                    append(appName.slice(2..3))
-                }
-                append(appName.takeLast(1))
-            },
-            style = MaterialTheme.typography.h1
-                .copy(
-                    fontSize = 64.sp,
-                    color = MaterialTheme.colors.secondary,
-                    fontFamily = FontFamily.Cursive,
-                ),
+
+        // Afficher l'image de logo
+        Image(
+            painter = painterResource(id = R.drawable.logo), // Utilisez le nom de votre nouvelle image ici
+            contentDescription = "Logo",
+            modifier = Modifier.fillMaxSize() // Ajustez la taille et le placement si nécessaire
         )
     }
 }

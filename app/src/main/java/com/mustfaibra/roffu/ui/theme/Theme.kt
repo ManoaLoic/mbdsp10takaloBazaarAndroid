@@ -20,9 +20,9 @@ private val DarkColorPalette = darkColors(
 )
 
 private val LightColorPalette = lightColors(
-    primary = Blue,
+    primary = MainColor,
     primaryVariant = DarkBlue,
-    secondary = Orange,
+    secondary = SecondColor,
     background = White,
     surface = LightGray,
     onPrimary = Color.White,
