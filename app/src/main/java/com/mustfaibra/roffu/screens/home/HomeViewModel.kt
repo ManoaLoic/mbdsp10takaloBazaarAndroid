@@ -50,31 +50,6 @@ class HomeViewModel @Inject constructor(
         this.searchQuery.value = value
     }
 
-    fun getHomeAdvertisements() {
-        if (advertisements.isNotEmpty()) return
-
-        /** start loading */
-        homeAdvertisementsUiState.value = UiState.Loading
-        viewModelScope.launch {
-            brandsRepository.getBrandsAdvertisements().let {
-                when (it) {
-                    is DataResponse.Success -> {
-                        /** Got a response from the server successfully */
-                        homeAdvertisementsUiState.value = UiState.Success
-                        it.data?.let { responseAds ->
-                            advertisements.addAll(responseAds)
-                        }
-                    }
-                    is DataResponse.Error -> {
-                        /** An error happened when fetching data from the server */
-                        homeAdvertisementsUiState.value =
-                            UiState.Error(error = it.error ?: Error.Network)
-                    }
-                }
-            }
-        }
-    }
-
     fun getBrandsWithProducts() {
         if (brands.isNotEmpty()) return
 
@@ -116,7 +91,7 @@ class HomeViewModel @Inject constructor(
             )
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
-                    _objects.value = _objects.value + data.objects
+                    _objects.value = data.objects
                 }
             }
             _isLoading.value = false

@@ -2,6 +2,7 @@ package com.mustfaibra.roffu.screens.home
 
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -59,7 +60,6 @@ fun HomeScreen(
     onBookmarkStateChanged: (productId: Int) -> Unit,
 ) {
     LaunchedEffect(key1 = Unit) {
-        homeViewModel.getHomeAdvertisements()
         homeViewModel.loadObjects()
     }
 
@@ -68,7 +68,23 @@ fun HomeScreen(
     val searchQuery by remember { homeViewModel.searchQuery }
 
     val advertisementsUiState by remember { homeViewModel.homeAdvertisementsUiState }
-    val advertisements = homeViewModel.advertisements
+    val advertisements = listOf(
+        Advertisement(
+            title = "Échangez vos objets",
+            subtitle = "Découvrez des Objets",
+            image = R.drawable.banner3
+        ),
+        Advertisement(
+            title = "Trouvez de nouveaux trésors",
+            subtitle = "Commencez votre Recherche",
+            image = R.drawable.banner
+        ),
+        Advertisement(
+            title = "Transformez vos objets en nouvelles opportunités",
+            subtitle = "Explorez Maintenant",
+            image = R.drawable.banner2
+        )
+    )
 
     val objects by homeViewModel.objects.collectAsState()
     val isLoading by homeViewModel.isLoading.collectAsState()
@@ -109,9 +125,30 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Home", style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold, color = Color.Black)) },
-                backgroundColor = Color.White,
-                contentColor = Color.Black
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.logo_no_background),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                        )
+                        IconButton(onClick = { /* Handle filter click */ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_filtering_slidebars),
+                                contentDescription = null,
+                                tint = MaterialTheme.colors.onBackground
+                            )
+                        }
+                    }
+                },
+                backgroundColor = MaterialTheme.colors.background,
+                contentColor = MaterialTheme.colors.onBackground
             )
         },
         content = { paddingValues ->
@@ -156,7 +193,8 @@ fun HomeScreen(
                                 AdvertisementsPager(
                                     pagerState = pagerState,
                                     advertisements = advertisements,
-                                    onAdvertiseClicked = {}
+                                    onAdvertiseClicked = {},
+                                    navController = navController,
                                 )
                             }
                             is UiState.Error -> {
@@ -170,6 +208,26 @@ fun HomeScreen(
                                 }
                             }
                             else -> {}
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.66f)
+                                .clip(MaterialTheme.shapes.large)
+                                .background(MaterialTheme.colors.primary)
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Les 20 objets les plus récents",
+                                style = MaterialTheme.typography.subtitle1.copy(
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -199,9 +257,8 @@ fun HomeScreen(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .aspectRatio(0.75f)
                                 ) {
-                                    ObjectCard(obj, false, navController)
+                                    ObjectCard(obj, true, navController)
                                 }
                             }
 
@@ -210,6 +267,27 @@ fun HomeScreen(
                             }
                         }
                     }
+
+                    item {
+                        if (!isLoading && !objects.isEmpty()) {
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Button(
+                                onClick = { navController.navigate("objectsearch?query=") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(MaterialTheme.shapes.medium),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
+                            ) {
+                                Text(
+                                    text = "Voir plus",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.button.copy(fontWeight = FontWeight.Bold)
+                                )
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -262,6 +340,7 @@ fun AdvertisementsPager(
     pagerState: PagerState,
     advertisements: List<Advertisement>,
     onAdvertiseClicked: (advertisement: Advertisement) -> Unit,
+    navController: NavHostController,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -271,26 +350,67 @@ fun AdvertisementsPager(
         /** Horizontal pager section */
         HorizontalPager(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.medium)
+                .background(Color(0xFFC4C4C4)),
             count = advertisements.size,
             state = pagerState,
             itemSpacing = Dimension.pagePadding.times(2),
         ) {
             val advertisement = advertisements[this.currentPage]
-            AsyncImage(
-                model = advertisement.image,
-                contentDescription = null,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(2f)
+                    .height(200.dp)
+                    .background(Color(0xFFC4C4C4))
+                    .padding(Dimension.pagePadding)
                     .clip(MaterialTheme.shapes.medium)
                     .clickable(
                         indication = null,
                         interactionSource = MutableInteractionSource(),
                         onClick = { onAdvertiseClicked(advertisement) }
-                    ),
-                contentScale = ContentScale.Crop,
-            )
+                    )
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(2f)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = advertisement.title,
+                            style = MaterialTheme.typography.h6.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            ),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        Button(
+                            onClick = { navController.navigate("objectsearch?query=") },
+                            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
+                        ) {
+                            Text(
+                                text = advertisement.subtitle,
+                                color = Color.White,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    AsyncImage(
+                        model = advertisement.image,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(MaterialTheme.shapes.large),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
         }
         /** Horizontal pager indicators */
         LazyRow(

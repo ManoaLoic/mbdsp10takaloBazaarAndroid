@@ -56,7 +56,7 @@ fun ObjectCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .offset(x = (-14).dp, y = (-15).dp)
+                            .offset(x = (-14).dp, y = (-10).dp)
                     ) {
                         Text(
                             text = "Récent",
