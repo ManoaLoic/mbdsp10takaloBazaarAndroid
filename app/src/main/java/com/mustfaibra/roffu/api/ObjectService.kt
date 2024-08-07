@@ -11,7 +11,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ObjectService {
-    @GET("objects/{id}")
+    @GET("object/{id}")
     suspend fun getObjectById(@Path("id") id: Int): Response<Object>
 
     @POST("objects")
