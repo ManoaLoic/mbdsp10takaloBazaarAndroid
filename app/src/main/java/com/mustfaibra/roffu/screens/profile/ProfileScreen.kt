@@ -2,23 +2,11 @@ package com.mustfaibra.roffu.screens.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
@@ -39,7 +27,6 @@ import com.mustfaibra.roffu.R
 import com.mustfaibra.roffu.components.DrawableButton
 import com.mustfaibra.roffu.components.IconButton
 import com.mustfaibra.roffu.models.LoginUser
-import com.mustfaibra.roffu.models.User
 import com.mustfaibra.roffu.sealed.Screen
 import com.mustfaibra.roffu.ui.theme.Dimension
 
@@ -56,6 +43,10 @@ fun ProfileScreen(
     val personalOptions = remember {
         listOf(Screen.PrivacyPolicies, Screen.TermsConditions)
     }
+    val exchangeOptions = remember {
+        listOf(Screen.CurrentExchange)
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -70,9 +61,11 @@ fun ProfileScreen(
             )
         }
         /** Header section */
+        /** Header section */
         item {
             // ProfileHeaderSection(...)
         }
+        /** Add virtual card section */
         /** Add virtual card section */
         item {
             Card(
@@ -111,6 +104,7 @@ fun ProfileScreen(
             }
         }
         /** General options */
+        /** General options */
         item {
             Text(
                 text = "General",
@@ -122,12 +116,11 @@ fun ProfileScreen(
                 icon = option.icon,
                 title = option.title,
                 onOptionClicked = {
-                    if (option is Screen.OrderHistory) {
-                        onNavigationRequested(option.route, false)
-                    }
+                    onNavigationRequested(option.route, false)
                 },
             )
         }
+        /** Personal options */
         /** Personal options */
         item {
             Text(
@@ -142,6 +135,24 @@ fun ProfileScreen(
                 onOptionClicked = {},
             )
         }
+        /** Echanges section */
+        /** Echanges section */
+        item {
+            Text(
+                text = "Echanges",
+                style = MaterialTheme.typography.body1,
+            )
+        }
+        items(exchangeOptions) { option ->
+            ProfileOptionItem(
+                icon = R.drawable.ic_exchange,
+                title = R.string.current_exchanges,
+                onOptionClicked = {
+                    onNavigationRequested(option.route, false)
+                },
+            )
+        }
+        /** Logout button */
         /** Logout button */
         item {
             Row(
@@ -188,7 +199,6 @@ fun ProfileScreen(
         }
     }
 }
-
 
 @Composable
 fun ProfileOptionItem(icon: Int?, title: Int?, onOptionClicked: () -> Unit) {
