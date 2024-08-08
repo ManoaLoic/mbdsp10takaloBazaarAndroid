@@ -8,6 +8,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,6 +39,13 @@ fun LoginScreen(
     val uiState by remember { loginViewModel.uiState }
     val emailOrPhone by remember { loginViewModel.emailOrPhone }
     val password by remember { loginViewModel.password }
+    val errorMessage by remember { loginViewModel.errorMessage }
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            onToastRequested(message, Color.Red)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -65,7 +73,7 @@ fun LoginScreen(
             onValueChange = {
                 loginViewModel.updateEmailOrPhone(value = it.ifBlank { null })
             },
-            placeholder = "Email or Phone ...",
+            placeholder = "Email ou nom d'utilisateur ...",
             textStyle = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.Medium),
             padding = PaddingValues(
                 horizontal = Dimension.pagePadding,
@@ -100,7 +108,7 @@ fun LoginScreen(
             onValueChange = {
                 loginViewModel.updatePassword(value = it.ifBlank { null })
             },
-            placeholder = "Password ...",
+            placeholder = "Mot de passe ...",
             visualTransformation = PasswordVisualTransformation(),
             textStyle = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.Medium),
             padding = PaddingValues(
@@ -151,7 +159,7 @@ fun LoginScreen(
                     },
                     onAuthenticationFailed = {
                         /** Do whatever you want when it failed */
-                        onToastRequested("Make sure you fill the form!", Color.Red)
+                        onToastRequested("Veuillez remplir tous les champs!", Color.Red)
                     }
                 )
             },
@@ -166,88 +174,6 @@ fun LoginScreen(
                     )
                 }
             }
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = Dimension.pagePadding),
-            contentAlignment = Alignment.Center,
-        ) {
-            Divider()
-            Text(
-                modifier = Modifier
-                    .background(MaterialTheme.colors.background)
-                    .padding(horizontal = Dimension.pagePadding.div(2)),
-                text = "Or using",
-                style = MaterialTheme.typography.caption
-                    .copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.7f)
-                    ),
-            )
-        }
-
-        /** Another signing options */
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
-        ) {
-            DrawableButton(
-                paddingValue = PaddingValues(Dimension.sm),
-                elevation = Dimension.elevation,
-                painter = painterResource(id = R.drawable.ic_google),
-                onButtonClicked = {},
-                backgroundColor = MaterialTheme.colors.background,
-                shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon.times(0.8f),
-            )
-            DrawableButton(
-                paddingValue = PaddingValues(Dimension.sm),
-                elevation = Dimension.elevation,
-                painter = painterResource(id = R.drawable.ic_facebook),
-                onButtonClicked = {},
-                backgroundColor = MaterialTheme.colors.background,
-                shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon.times(0.8f),
-            )
-            DrawableButton(
-                paddingValue = PaddingValues(Dimension.sm),
-                elevation = Dimension.elevation,
-                painter = painterResource(id = R.drawable.ic_twitter),
-                onButtonClicked = {},
-                backgroundColor = MaterialTheme.colors.background,
-                shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon.times(0.8f),
-            )
-            DrawableButton(
-                paddingValue = PaddingValues(Dimension.sm),
-                elevation = Dimension.elevation,
-                painter = painterResource(id = R.drawable.ic_apple),
-                onButtonClicked = {},
-                backgroundColor = MaterialTheme.colors.background,
-                shape = MaterialTheme.shapes.medium,
-                iconSize = Dimension.mdIcon.times(0.8f),
-            )
-        }
-        Divider(Modifier.padding(vertical = Dimension.pagePadding))
-        CustomButton(
-            modifier = Modifier,
-            shape = MaterialTheme.shapes.large,
-            elevationEnabled = false,
-            padding = PaddingValues(
-                horizontal = Dimension.pagePadding,
-                vertical = Dimension.xs
-            ),
-            buttonColor = MaterialTheme.colors.background,
-            contentColor = MaterialTheme.colors.primary,
-            text = stringResource(id = R.string.privacy_and_policies),
-            enabled = uiState !is UiState.Loading,
-            textStyle = MaterialTheme.typography.caption
-                .copy(fontWeight = FontWeight.SemiBold),
-            onButtonClicked = {
-                /** Handle the click event of the policies & terms button */
-
-            },
         )
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustfaibra.roffu.R
 import com.mustfaibra.roffu.sealed.Screen
-import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.delay
 
 @Composable
@@ -34,31 +33,17 @@ fun SplashScreen(
 
         val isAppLaunchedBefore by splashViewModel.isAppLaunchedBefore
             .collectAsState(initial = false)
-        val loggedUserId by splashViewModel.loggedUserId
-            .collectAsState(initial = null)
 
         LaunchedEffect(key1 = Unit) {
             delay(3000)
-            if (isAppLaunchedBefore) {
-                loggedUserId.whatIfNotNull(
-                    whatIf = {
-                        splashViewModel.checkLoggedUser(
-                            userId = it,
-                            onCheckFinish = {
-                                /** Launched before and user checked, we should go to home now */
-                                onSplashFinished(Screen.Home)
-                            }
-                        )
-                    },
-                    whatIfNot = {
-                        /** Launched before, we should go to home now */
-                        onSplashFinished(Screen.Home)
-                    }
-                )
-
-            } else {
-                /** Not launched before so we should navigate to Onboard screen */
-                onSplashFinished(Screen.Onboard)
+            splashViewModel.checkLoggedUser { loggedUser ->
+                if (loggedUser != null) {
+                    // User is logged in, navigate to Profile
+                    onSplashFinished(Screen.Home)
+                } else {
+                    // User is not logged in, navigate to Login
+                    onSplashFinished(Screen.Home)
+                }
             }
         }
 

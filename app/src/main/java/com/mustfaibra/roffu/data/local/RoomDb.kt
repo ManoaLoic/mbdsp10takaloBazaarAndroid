@@ -27,7 +27,7 @@ import javax.inject.Provider
         ProductColor::class,
         ProductSize::class,
     ],
-    version = 2, exportSchema = false)
+    version = 1, exportSchema = false)
 abstract class RoomDb : RoomDatabase() {
 
     /** A function that used to retrieve Room's related dao instance */

@@ -53,6 +53,7 @@ import com.mustfaibra.roffu.components.PopupOptionsMenu
 import com.mustfaibra.roffu.components.SimpleLoadingDialog
 import com.mustfaibra.roffu.components.SummaryRow
 import com.mustfaibra.roffu.models.CartItem
+import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.models.User
 import com.mustfaibra.roffu.sealed.MenuOption
 import com.mustfaibra.roffu.ui.theme.Dimension
@@ -64,7 +65,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun CartScreen(
-    user: User?,
+    user: LoginUser?,
     cartItems: List<CartItem>,
     cartViewModel: CartViewModel = hiltViewModel(),
     onProductClicked: (productId: Int) -> Unit,

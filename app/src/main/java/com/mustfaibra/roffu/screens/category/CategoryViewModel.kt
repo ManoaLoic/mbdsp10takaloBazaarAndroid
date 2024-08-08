@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.mustfaibra.roffu.api.CategoryService
 import com.mustfaibra.roffu.api.RetrofitInstance
 import com.mustfaibra.roffu.models.Category
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -1,6 +1,7 @@
 package com.mustfaibra.roffu.screens.ajoutobjet
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -116,10 +117,21 @@ class AjoutObjetViewModel @Inject constructor(
     }
 
     private fun uriToBase64(context: Context, uri: Uri): Pair<String?, String?> {
-        val inputStream = context.contentResolver.openInputStream(uri)
+        // Request permission if not already granted
+        val contentResolver = context.contentResolver
+        try {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (e: SecurityException) {
+            // Handle exception if needed
+        }
+
+        val inputStream = contentResolver.openInputStream(uri)
         val bitmap = BitmapFactory.decodeStream(inputStream)
         val outputStream = ByteArrayOutputStream()
-        val fileExtension = context.contentResolver.getType(uri)?.split("/")?.last()
+        val fileExtension = contentResolver.getType(uri)?.split("/")?.last()
         val format = when (fileExtension) {
             "png" -> Bitmap.CompressFormat.PNG
             "webp" -> Bitmap.CompressFormat.WEBP

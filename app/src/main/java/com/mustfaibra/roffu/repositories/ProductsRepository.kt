@@ -57,37 +57,37 @@ class ProductsRepository @Inject constructor(
         deliveryAddressId: Int?,
         onFinished: () -> Unit,
     ) {
-        UserPref.user.value?.let {
-            val order = Order(
-                orderId = Date().getFormattedDate("yyyyMMddHHmmSS"),
-                userId = it.userId,
-                total = total,
-                locationId = deliveryAddressId,
-            )
-            val orderPayment = OrderPayment(
-                orderId = order.orderId,
-                providerId = providerId,
-            )
-
-            /** Fake the success of delivering the previous order */
-            dao.updateOrdersAsDelivered()
-
-            dao.insertOrder(order = order)
-            dao.insertOrderPayment(payment = orderPayment)
-            dao.insertOrderItems(
-                items = items.map { cartItem ->
-                    OrderItem(
-                        orderId = order.orderId,
-                        quantity = cartItem.quantity,
-                        productId = cartItem.productId,
-                        userId = it.userId,
-                    )
-                },
-            )
-            /** Then clear our cart */
-            dao.clearCart()
-            onFinished()
-        }
+//        UserPref.user.value?.let {
+//            val order = Order(
+//                orderId = Date().getFormattedDate("yyyyMMddHHmmSS"),
+//                userId = it.id,
+//                total = total,
+//                locationId = deliveryAddressId,
+//            )
+//            val orderPayment = OrderPayment(
+//                orderId = order.orderId,
+//                providerId = providerId,
+//            )
+//
+//            /** Fake the success of delivering the previous order */
+//            dao.updateOrdersAsDelivered()
+//
+//            dao.insertOrder(order = order)
+//            dao.insertOrderPayment(payment = orderPayment)
+//            dao.insertOrderItems(
+//                items = items.map { cartItem ->
+//                    OrderItem(
+//                        orderId = order.orderId,
+//                        quantity = cartItem.quantity,
+//                        productId = cartItem.productId,
+//                        userId = it.id,
+//                    )
+//                },
+//            )
+//            /** Then clear our cart */
+//            dao.clearCart()
+//            onFinished()
+//        }
     }
 
     fun getCartProductsIdsFlow() = dao.getCartProductsIds()
