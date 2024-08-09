@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProposerEchangeViewModel @Inject constructor(
     private val exchangeService: ExchangeService,
-    private val objectService: ObjectService,
+    public val objectService: ObjectService,
     private val sessionService: SessionService,
     private val userService: UserService
 ) : ViewModel() {

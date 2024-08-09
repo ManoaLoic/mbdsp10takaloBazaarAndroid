@@ -12,14 +12,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
+import com.mustfaibra.roffu.components.MyObjectsModal
 import com.mustfaibra.roffu.components.ObjectCard
+import com.mustfaibra.roffu.components.ObjectSection
 import com.mustfaibra.roffu.models.Object
 
 @Composable
@@ -29,6 +30,11 @@ fun ProposerEchangeScreen(
     viewModel: ProposerEchangeViewModel = hiltViewModel()
 ) {
     var isProposing by remember { mutableStateOf(false) }
+    var showModal by remember { mutableStateOf(false) }
+    var selectedUserId by remember { mutableStateOf(0) } // This will hold the userId for the modal
+
+    val proposerObjects = remember { mutableStateListOf<Object>() }
+    val receiverObjects = remember { mutableStateListOf<Object>() }
 
     // Fetch the object details
     LaunchedEffect(objectId) {
@@ -38,6 +44,11 @@ fun ProposerEchangeScreen(
     val obj by viewModel.obj.collectAsState()
     val user by viewModel.user.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    // Add the passed object to the proposerObjects list initially
+    LaunchedEffect(obj) {
+        obj?.let { proposerObjects.add(it) }
+    }
 
     Scaffold(
         topBar = {
@@ -84,87 +95,115 @@ fun ProposerEchangeScreen(
             }
         },
         content = { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding).fillMaxSize().padding(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 } else {
-                    obj?.let { obj ->
-                        LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            item {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        item {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.weight(5f / 12f)
                                 ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.weight(5f / 12f)
-                                    ) {
-                                        Image(
-                                            painter = rememberImagePainter(user?.profilePicture),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(64.dp)
-                                                .clip(CircleShape)
-                                        )
-                                        Text(
-                                            text = user?.username ?: "",
-                                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                                        )
-                                    }
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowForward,
-                                        contentDescription = "Arrow",
+                                    Image(
+                                        painter = rememberImagePainter(user?.profilePicture),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
                                         modifier = Modifier
-                                            .size(32.dp)
-                                            .weight(2f / 12f)
+                                            .size(64.dp)
+                                            .clip(CircleShape)
                                     )
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.weight(5f / 12f)
-                                    ) {
-                                        Image(
-                                            painter = rememberImagePainter(obj.user?.profilePicture),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(64.dp)
-                                                .clip(CircleShape)
-                                        )
-                                        Text(
-                                            text = obj.user?.username ?: "",
-                                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                                        )
-                                    }
-                                }
-                            }
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .shadow(4.dp, MaterialTheme.shapes.medium)
-                                        .background(MaterialTheme.colors.secondary)
-                                        .clip(MaterialTheme.shapes.medium)
-                                        .padding(8.dp)
-                                ) {
                                     Text(
-                                        text = "Proposition",
-                                        style = MaterialTheme.typography.h6,
-                                        color = MaterialTheme.colors.onSecondary
+                                        text = user?.username ?: "",
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
                                     )
                                 }
-                            }
-                            item {
-                                ObjectCard(obj, false, navController)
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForward,
+                                    contentDescription = "Arrow",
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .weight(2f / 12f)
+                                )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.weight(5f / 12f)
+                                ) {
+                                    Image(
+                                        painter = rememberImagePainter(obj?.user?.profilePicture),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(64.dp)
+                                            .clip(CircleShape)
+                                    )
+                                    Text(
+                                        text = obj?.user?.username ?: "",
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    )
+                                }
                             }
                         }
-                    } ?: Text(text = "Object details not available.", modifier = Modifier.align(Alignment.Center))
+                        item {
+                            ObjectSection(
+                                title = "Objet(s) à échanger",
+                                objects = proposerObjects,
+                                navController = navController,
+                                onAddObjectClick = {
+                                    selectedUserId = obj?.user?.id ?: 0
+                                    showModal = true
+                                },
+                                onRemoveObjectClick = { selectedObject ->
+                                    proposerObjects.remove(selectedObject)
+                                }
+                            )
+                        }
+                        item {
+                            ObjectSection(
+                                title = "Objet(s) en échange",
+                                objects = receiverObjects,
+                                navController = navController,
+                                onAddObjectClick = {
+                                    selectedUserId = viewModel.user.value?.id ?: 0
+                                    showModal = true
+                                },
+                                onRemoveObjectClick = { selectedObject ->
+                                    receiverObjects.remove(selectedObject)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
     )
+
+    if (showModal && selectedUserId != 0) {
+        MyObjectsModal(
+            userId = selectedUserId,
+            onDismiss = { showModal = false },
+            navController = navController,
+            objectService = viewModel.objectService,
+            onObjectSelected = { selectedObject ->
+                if (selectedUserId == obj?.user?.id) {
+                    proposerObjects.add(selectedObject)
+                } else {
+                    receiverObjects.add(selectedObject)
+                }
+            }
+        )
+    }
 }
