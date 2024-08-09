@@ -9,10 +9,17 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.QueryMap
 
 interface ObjectService {
     @GET("object/{id}")
     suspend fun getObjectById(@Path("id") id: Int): Response<Object>
+
+    @GET("user/{userId}/objects")
+    suspend fun getUserObjects(
+        @Path("userId") userId: Int,
+        @QueryMap params: Map<String, Int>
+    ): Response<ObjectListResponse>
 
     @POST("objects")
     suspend fun createObject(@Body obj: ObjectRequest): Response<Object>

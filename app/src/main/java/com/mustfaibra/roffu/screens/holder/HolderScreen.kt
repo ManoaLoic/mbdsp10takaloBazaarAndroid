@@ -58,6 +58,7 @@ import com.mustfaibra.roffu.sealed.Screen
 import com.mustfaibra.roffu.utils.getDp
 import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.launch
+import com.mustfaibra.roffu.screens.myobjects.MyObjectsScreen
 
 @Composable
 fun HolderScreen(
@@ -369,6 +370,23 @@ fun ScaffoldSection(
                 ) { backStackEntry ->
                     val query = backStackEntry.arguments?.getString("query") ?: ""
                     ObjectSearchScreen(navController = controller, searchQuery = query)
+                }
+                composable(Screen.MyObjects.route) {
+                    user.whatIfNotNull(
+                        whatIf = {
+                            MyObjectsScreen(navController = controller)
+                        },
+                        whatIfNot = {
+                            LoginScreen(
+                                onUserAuthenticated = {
+                                    controller.navigate(Screen.MyObjects.route) {
+                                        popUpTo(Screen.Login.route) { inclusive = true }
+                                    }
+                                },
+                                onToastRequested = onToastRequested,
+                            )
+                        },
+                    )
                 }
             }
             bottomNavigationContent()

@@ -103,4 +103,9 @@ sealed class Screen(
         icon = R.drawable.ic_add
     )
 
+    object MyObjects : Screen(
+        route = "myobjects",
+        title = R.string.my_objects,
+        icon = R.drawable.ic_my_objects
+    )
 }

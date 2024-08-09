@@ -54,7 +54,7 @@ fun ProfileScreen(
         listOf(Screen.Settings, Screen.OrderHistory)
     }
     val personalOptions = remember {
-        listOf(Screen.PrivacyPolicies, Screen.TermsConditions)
+        listOf(Screen.PrivacyPolicies, Screen.TermsConditions, Screen.MyObjects)
     }
     LazyColumn(
         modifier = Modifier
@@ -140,6 +140,19 @@ fun ProfileScreen(
                 icon = option.icon,
                 title = option.title,
                 onOptionClicked = {},
+            )
+        }
+
+        // Affichage des options personnelles, y compris la nouvelle option "My Objects"
+        items(personalOptions) { option ->
+            ProfileOptionItem(
+                icon = option.icon,
+                title = option.title,
+                onOptionClicked = {
+                    if (option is Screen.MyObjects) {
+                        onNavigationRequested(option.route, false)
+                    }
+                },
             )
         }
         /** Logout button */
