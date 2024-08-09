@@ -54,3 +54,14 @@ data class CustomUser(
         @SerializedName("status")
         val status:String,
 )
+
+@Serializable
+data class UserResponse(
+        @Expose
+        @SerializedName("message")
+        val message: String,
+
+        @Expose
+        @SerializedName("user")
+        val user: CustomUser
+)

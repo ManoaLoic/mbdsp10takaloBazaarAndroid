@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mustfaibra.roffu.models.Object
+import com.mustfaibra.roffu.sealed.Screen
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -46,6 +47,21 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
                     }
                 }
             )
+        },
+        bottomBar = {
+            obj?.let {
+                Button(
+                    onClick = {
+                        navController.navigate("${Screen.ProposerEchange}/${it.id}")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
+                ) {
+                    Text("Proposer un échange", color = Color.White)
+                }
+            }
         }
     ) { paddingValues ->
         Column(
@@ -99,13 +115,13 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             if (obj.status == "Available") {
                 Text(
                     text = "Disponible",
-                    color = Color(0xFF388E3C), // Vert foncé
+                    color = Color(0xFF388E3C), // Dark green
                     style = MaterialTheme.typography.body2
                 )
             } else {
                 Text(
                     text = "Retiré",
-                    color = Color(0xFFD32F2F), // Rouge foncé
+                    color = Color(0xFFD32F2F), // Dark red
                     style = MaterialTheme.typography.body2
                 )
             }
@@ -116,9 +132,9 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             contentDescription = "Object Image",
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 200.dp) // Limite maximale pour la hauteur
+                .heightIn(max = 200.dp) // Maximum height limit
                 .clip(shape = RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Fit // Préserve le ratio sans contrainte
+            contentScale = ContentScale.Fit // Preserve aspect ratio without constraint
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -165,20 +181,6 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                navController.navigate("exchange/propose/${obj.user?.id}") {
-                    popUpTo("home") { inclusive = true }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
-        ) {
-            Text("Proposer un échange", color = Color.White)
-        }
     }
 }
 

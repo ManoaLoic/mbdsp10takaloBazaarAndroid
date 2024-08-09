@@ -115,4 +115,16 @@ sealed class Screen(
         icon = R.drawable.ic_exchange
     )
 
+    object MyObjects : Screen(
+        route = "myObject",
+        title = R.string.ajout_objet,
+        icon = R.drawable.ic_exchange
+    )
+
+    object ProposerEchange : Screen(
+        route = "proposerEchange",
+        title = R.string.proposer_echange,
+        icon = R.drawable.ic_exchange
+    )
+
 }
