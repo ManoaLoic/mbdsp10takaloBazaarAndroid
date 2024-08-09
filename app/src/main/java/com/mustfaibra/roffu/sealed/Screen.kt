@@ -116,9 +116,9 @@ sealed class Screen(
     )
 
     object MyObjects : Screen(
-        route = "myObject",
-        title = R.string.ajout_objet,
-        icon = R.drawable.ic_exchange
+        route = "myobjects",
+        title = R.string.my_objects,
+        icon = R.drawable.ic_my_objects
     )
 
     object ProposerEchange : Screen(
@@ -126,5 +126,4 @@ sealed class Screen(
         title = R.string.proposer_echange,
         icon = R.drawable.ic_exchange
     )
-
 }

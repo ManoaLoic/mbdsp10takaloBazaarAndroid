@@ -13,13 +13,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.mustfaibra.roffu.models.Object
 import com.mustfaibra.roffu.components.ObjectCard
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.Alignment
 
 @Composable
 fun MyObjectsScreen(navController: NavHostController, viewModel: MyObjectsViewModel = hiltViewModel()) {
     val userObjects by viewModel.userObjects.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getMyObjects()
+        viewModel.loadUserObjects() // Assure-toi d'utiliser la méthode correcte
     }
 
     Scaffold(
@@ -40,17 +45,34 @@ fun MyObjectsScreen(navController: NavHostController, viewModel: MyObjectsViewMo
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            if (userObjects.isEmpty()) {
-                Text("Aucun objet trouvé.")
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(userObjects) { obj ->
-                        ObjectCard(obj = obj, isRecent = false, navController = navController)
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                userObjects.isEmpty() -> {
+                    Text("Aucun objet trouvé.")
+                }
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(userObjects) { obj ->
+                            ObjectCard(obj = obj, isRecent = false, navController = navController)
+                        }
                     }
                 }
             }
         }
     }
 }
+
+

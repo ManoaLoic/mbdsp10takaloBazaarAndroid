@@ -132,9 +132,9 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             contentDescription = "Object Image",
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 200.dp) // Maximum height limit
+                .heightIn(max = 200.dp)
                 .clip(shape = RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Fit // Preserve aspect ratio without constraint
+            contentScale = ContentScale.Fit // Préserve le ratio sans contrainte
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -167,7 +167,7 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(8.dp)
-                .background(Color.Gray, shape = RoundedCornerShape(8.dp))
+                .background(Color(0xFFD3D3D3), shape = RoundedCornerShape(8.dp)) // Gris plus clair
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             Icon(Icons.Default.CalendarToday, contentDescription = "Date Icon")

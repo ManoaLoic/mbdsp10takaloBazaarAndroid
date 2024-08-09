@@ -395,22 +395,8 @@ fun ScaffoldSection(
                     ProposerEchangeScreen(navController = controller, objectId = objectId)
                 }
                 composable(Screen.MyObjects.route) {
-                    user.whatIfNotNull(
-                        whatIf = {
-                            MyObjectsScreen(navController = controller)
-                        },
-                        whatIfNot = {
-                            LoginScreen(
-                                onUserAuthenticated = {
-                                    controller.navigate(Screen.MyObjects.route) {
-                                        popUpTo(Screen.Login.route) { inclusive = true }
-                                    }
-                                },
-                                onToastRequested = onToastRequested,
-                            )
-                        },
-                    )
-                }
+                    MyObjectsScreen(navController = controller)
+                 }
             }
             bottomNavigationContent()
         }
