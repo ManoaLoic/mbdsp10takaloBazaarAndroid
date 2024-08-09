@@ -54,7 +54,7 @@ fun ProfileScreen(
         listOf(Screen.Settings, Screen.OrderHistory)
     }
     val personalOptions = remember {
-        listOf(Screen.PrivacyPolicies, Screen.TermsConditions, Screen.MyObjects)
+        listOf(Screen.PrivacyPolicies, Screen.TermsConditions)
     }
     LazyColumn(
         modifier = Modifier
@@ -73,10 +73,10 @@ fun ProfileScreen(
         item {
             // ProfileHeaderSection(...)
         }
-        /** Add virtual card section */
+        /** My Objects section */
         item {
             Card(
-                modifier = Modifier.clickable { },
+                modifier = Modifier.clickable { onNavigationRequested(Screen.MyObjects.route, false) },
                 shape = MaterialTheme.shapes.medium,
                 backgroundColor = MaterialTheme.colors.secondary,
                 contentColor = MaterialTheme.colors.onSecondary,
@@ -90,7 +90,7 @@ fun ProfileScreen(
                     ) {
                         Text(
                             modifier = Modifier.weight(1f),
-                            text = "Add virtual card",
+                            text = stringResource(id = R.string.my_objects),
                             style = MaterialTheme.typography.button,
                         )
                         IconButton(
@@ -104,12 +104,13 @@ fun ProfileScreen(
                         )
                     }
                     Text(
-                        text = "Virtual cards allow you to purchase products on the store.",
+                        text = "Voir et gérer vos objets !",
                         style = MaterialTheme.typography.body2,
                     )
                 }
             }
         }
+
         /** General options */
         item {
             Text(
@@ -143,18 +144,7 @@ fun ProfileScreen(
             )
         }
 
-        // Affichage des options personnelles, y compris la nouvelle option "My Objects"
-        items(personalOptions) { option ->
-            ProfileOptionItem(
-                icon = option.icon,
-                title = option.title,
-                onOptionClicked = {
-                    if (option is Screen.MyObjects) {
-                        onNavigationRequested(option.route, false)
-                    }
-                },
-            )
-        }
+       
         /** Logout button */
         item {
             Row(

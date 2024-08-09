@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustfaibra.roffu.api.ObjectService
 import com.mustfaibra.roffu.models.Object
+import com.mustfaibra.roffu.services.SessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,21 +13,58 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyObjectsViewModel @Inject constructor(
-    private val objectService: ObjectService
+    private val objectService: ObjectService,
+    private val sessionService: SessionService
 ) : ViewModel() {
 
     private val _userObjects = MutableStateFlow<List<Object>>(emptyList())
     val userObjects: StateFlow<List<Object>> get() = _userObjects
 
-    fun getMyObjects() {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
+    private val _hasMorePages = MutableStateFlow(true)
+    val hasMorePages: StateFlow<Boolean> get() = _hasMorePages
+
+    var pageNo: Int = 1
+    var pageSize: Int = 20
+
+    fun loadUserObjects(resetPage: Boolean = false) {
+        if (_isLoading.value) return
+
+        if (resetPage) {
+            pageNo = 1
+            _userObjects.value = emptyList()
+        }
+
+        _isLoading.value = true
         viewModelScope.launch {
-            val response = objectService.getUserObjects(1, emptyMap()) // Remplacez 1 par l'ID de l'utilisateur connecté
-            if (response.isSuccessful) {
-                _userObjects.value = response.body()?.data?.objects ?: emptyList()
-            } else {
-                // Gérer les erreurs
-                println("Erreur lors de la récupération des objets : ${response.errorBody()?.string()}")
+            val user = sessionService.getUser()
+            user?.let {
+                val params = mapOf(
+                    "page" to pageNo,
+                    "limit" to pageSize
+                )
+                val response = objectService.getUserObjects(it.id, params)
+                if (response.isSuccessful) {
+                    response.body()?.data?.let { data ->
+                        _userObjects.value = _userObjects.value + data.objects
+                        _hasMorePages.value = data.currentPage < data.totalPages
+                    }
+                } else {
+                    _hasMorePages.value = false
+                }
             }
+            _isLoading.value = false
+        }
+    }
+
+    fun loadNextPage() {
+        if (_hasMorePages.value) {
+            pageNo++
+            loadUserObjects()
         }
     }
 }
+
+

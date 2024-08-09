@@ -372,22 +372,8 @@ fun ScaffoldSection(
                     ObjectSearchScreen(navController = controller, searchQuery = query)
                 }
                 composable(Screen.MyObjects.route) {
-                    user.whatIfNotNull(
-                        whatIf = {
-                            MyObjectsScreen(navController = controller)
-                        },
-                        whatIfNot = {
-                            LoginScreen(
-                                onUserAuthenticated = {
-                                    controller.navigate(Screen.MyObjects.route) {
-                                        popUpTo(Screen.Login.route) { inclusive = true }
-                                    }
-                                },
-                                onToastRequested = onToastRequested,
-                            )
-                        },
-                    )
-                }
+                    MyObjectsScreen(navController = controller)
+                 }
             }
             bottomNavigationContent()
         }
