@@ -103,4 +103,16 @@ sealed class Screen(
         icon = R.drawable.ic_add
     )
 
+    object CurrentExchange : Screen(
+        route = "currentExchange",
+        title = R.string.ajout_objet,
+        icon = R.drawable.ic_exchange
+    )
+
+    object FicheEchange : Screen(
+        route = "ficheExchange",
+        title = R.string.ajout_objet,
+        icon = R.drawable.ic_exchange
+    )
+
 }

@@ -5,17 +5,17 @@ import com.google.gson.annotations.SerializedName
 import com.mustfaibra.roffu.utils.getFormattedDate
 import java.util.*
 
-data class Exchange (
+data class Exchange(
     @Expose
     @SerializedName("id")
     val id: Int,
 
     @Expose
-    @SerializedName("proposerUserId")
+    @SerializedName("proposer_user_id")
     val proposerUserId: Int,
 
     @Expose
-    @SerializedName("receiverUserId")
+    @SerializedName("receiver_user_id")
     val receiverUserId: Int,
 
     @Expose
@@ -24,25 +24,65 @@ data class Exchange (
 
     @Expose
     @SerializedName("note")
-    val note: String,
+    val note: String?,
 
     @Expose
-    @SerializedName("appointmentDate")
-    val appointmentDate: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
+    @SerializedName("appointment_date")
+    val appointmentDate: String? = null,
 
     @Expose
-    @SerializedName("meetingPlace")
-    val meetingPlace: String,
+    @SerializedName("meeting_place")
+    val meetingPlace: String? = null,
 
     @Expose
     @SerializedName("date")
-    val date: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
+    val date: String? = null,
 
     @Expose
-    @SerializedName("updated_at:")
-    val updated_at: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
+    @SerializedName("updated_at")
+    val updatedAt: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
 
     @Expose
     @SerializedName("created_at")
-    val created_at: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
+    val createdAt: String = Date().getFormattedDate("yyyy-MM-dd HH:mm"),
+
+    @Expose
+    @SerializedName("proposer")
+    val proposer: CustomUser?,
+
+    @Expose
+    @SerializedName("receiver")
+    val receiver: CustomUser?,
+
+    @Expose
+    @SerializedName("exchange_objects")
+    val exchangeObjects: List<ExchangeObject>?
+)
+
+data class ExchangeObject(
+    @Expose
+    @SerializedName("id")
+    val id: Int,
+
+    @Expose
+    @SerializedName("exchange_id")
+    val exchangeId: Int,
+
+    @Expose
+    @SerializedName("object_id")
+    val objectId: Int,
+
+    @Expose
+    @SerializedName("user_id")
+    val userId: Int,
+
+    @Expose
+    @SerializedName("object")
+    val obj: Object,
+)
+
+data class ExchangeResponse(
+    @Expose
+    @SerializedName("data")
+    val data: List<Exchange>
 )

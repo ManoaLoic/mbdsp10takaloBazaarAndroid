@@ -41,6 +41,8 @@ import com.mustfaibra.roffu.screens.ajoutobjet.AjoutObjetScreen
 import com.mustfaibra.roffu.screens.bookmarks.BookmarksScreen
 import com.mustfaibra.roffu.screens.cart.CartScreen
 import com.mustfaibra.roffu.screens.checkout.CheckoutScreen
+import com.mustfaibra.roffu.screens.CurrentExchange.CurrentExchangeScreen
+import com.mustfaibra.roffu.screens.FicheEchangeScreen.FicheExchangeScreen
 import com.mustfaibra.roffu.screens.ficheobjet.FicheObjetScreen
 import com.mustfaibra.roffu.screens.home.HomeScreen
 import com.mustfaibra.roffu.screens.locationpicker.LocationPickerScreen
@@ -353,12 +355,23 @@ fun ScaffoldSection(
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     AjoutObjetScreen(navController = controller)
                 }
+                composable(Screen.CurrentExchange.route) {
+                    onStatusBarColorChange(MaterialTheme.colors.background)
+                    CurrentExchangeScreen(navController = controller)
+                }
                 composable(
                     "ficheobjet/{objectId}",
                     arguments = listOf(navArgument("objectId") { type = NavType.IntType })
                 ) { backStackEntry ->
                     val objectId = backStackEntry.arguments?.getInt("objectId") ?: 0
                     FicheObjetScreen(navController = controller, objectId)
+                }
+                composable(
+                    "ficheExchange/{exchangeId}",
+                    arguments = listOf(navArgument("exchangeId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val exchangeId = backStackEntry.arguments?.getInt("exchangeId") ?: 0
+                    FicheExchangeScreen(navController = controller, exchangeId)
                 }
                 composable(
                     route = "objectsearch?query={query}",
