@@ -41,7 +41,7 @@ fun ProfileScreen(
         listOf(Screen.Settings, Screen.OrderHistory)
     }
     val personalOptions = remember {
-        listOf(Screen.PrivacyPolicies, Screen.TermsConditions)
+        listOf(Screen.PrivacyPolicies, Screen.TermsConditions, Screen.MyObjects)
     }
     val exchangeOptions = remember {
         listOf(Screen.CurrentExchange)
