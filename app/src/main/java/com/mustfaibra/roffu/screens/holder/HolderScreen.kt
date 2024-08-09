@@ -60,6 +60,7 @@ import com.mustfaibra.roffu.sealed.Screen
 import com.mustfaibra.roffu.utils.getDp
 import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.launch
+import com.mustfaibra.roffu.screens.myobjects.MyObjectsScreen
 
 @Composable
 fun HolderScreen(
@@ -383,6 +384,9 @@ fun ScaffoldSection(
                     val query = backStackEntry.arguments?.getString("query") ?: ""
                     ObjectSearchScreen(navController = controller, searchQuery = query)
                 }
+                composable(Screen.MyObjects.route) {
+                    MyObjectsScreen(navController = controller)
+                 }
             }
             bottomNavigationContent()
         }

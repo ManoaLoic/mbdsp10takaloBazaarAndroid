@@ -24,7 +24,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mustfaibra.roffu.models.Object
-import com.mustfaibra.roffu.R
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
@@ -58,7 +59,7 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
             obj?.let {
                 ObjectDetail(obj = it, navController = navController)
             } ?: run {
-                CircularProgressIndicator() 
+                CircularProgressIndicator()
                 Text("Chargement...")
             }
         }
@@ -72,37 +73,41 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         ) {
-            Image(
-                painter = rememberImagePainter(data = obj.user?.profilePicture),
-                contentDescription = "User Profile Picture",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(
-                    text = obj.user?.username ?: "",
-                    style = MaterialTheme.typography.subtitle1,
-                    fontWeight = FontWeight.Bold
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = rememberImagePainter(data = obj.user?.profilePicture),
+                    contentDescription = "User Profile Picture",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                if (obj.status == "Available") {
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
                     Text(
-                        text = "Disponible",
-                        color = Color.Green,
-                        style = MaterialTheme.typography.body2
-                    )
-                } else {
-                    Text(
-                        text = "Retiré",
-                        color = Color.Red,
-                        style = MaterialTheme.typography.body2
+                        text = obj.user?.username ?: "",
+                        style = MaterialTheme.typography.subtitle1,
+                        fontWeight = FontWeight.Bold
                     )
                 }
+            }
+            if (obj.status == "Available") {
+                Text(
+                    text = "Disponible",
+                    color = Color(0xFF388E3C), // Vert foncé
+                    style = MaterialTheme.typography.body2
+                )
+            } else {
+                Text(
+                    text = "Retiré",
+                    color = Color(0xFFD32F2F), // Rouge foncé
+                    style = MaterialTheme.typography.body2
+                )
             }
         }
 
@@ -111,9 +116,9 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             contentDescription = "Object Image",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .heightIn(max = 200.dp)
                 .clip(shape = RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Fit
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -121,9 +126,9 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
         Text(
             text = obj.category?.name ?: "N/A",
             style = MaterialTheme.typography.caption,
-            color = Color(0xFF7D7A69),
+            color = Color.White,
             modifier = Modifier
-                .background(Color(0xFFF3F3F3), shape = RoundedCornerShape(8.dp))
+                .background(Color(0xFFBC8246), shape = RoundedCornerShape(8.dp))
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         )
 
@@ -144,12 +149,17 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier
+                .padding(8.dp)
+                .background(Color(0xFFD3D3D3), shape = RoundedCornerShape(8.dp)) // Gris plus clair
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             Icon(Icons.Default.CalendarToday, contentDescription = "Date Icon")
             Spacer(modifier = Modifier.width(4.dp))
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val formattedDate = dateFormat.format(obj.createdAt)
             Text(
-                text = "publié le ${obj.createdAt}",
+                text = "publié le $formattedDate",
                 style = MaterialTheme.typography.body2
             )
         }

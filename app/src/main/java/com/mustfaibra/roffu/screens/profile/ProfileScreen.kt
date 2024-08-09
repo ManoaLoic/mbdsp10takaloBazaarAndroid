@@ -67,9 +67,10 @@ fun ProfileScreen(
         }
         /** Add virtual card section */
         /** Add virtual card section */
+        /** My Objects section */
         item {
             Card(
-                modifier = Modifier.clickable { },
+                modifier = Modifier.clickable { onNavigationRequested(Screen.MyObjects.route, false) },
                 shape = MaterialTheme.shapes.medium,
                 backgroundColor = MaterialTheme.colors.secondary,
                 contentColor = MaterialTheme.colors.onSecondary,
@@ -83,7 +84,7 @@ fun ProfileScreen(
                     ) {
                         Text(
                             modifier = Modifier.weight(1f),
-                            text = "Add virtual card",
+                            text = stringResource(id = R.string.my_objects),
                             style = MaterialTheme.typography.button,
                         )
                         IconButton(
@@ -97,12 +98,13 @@ fun ProfileScreen(
                         )
                     }
                     Text(
-                        text = "Virtual cards allow you to purchase products on the store.",
+                        text = "Voir et gérer vos objets !",
                         style = MaterialTheme.typography.body2,
                     )
                 }
             }
         }
+
         /** General options */
         /** General options */
         item {
@@ -153,6 +155,8 @@ fun ProfileScreen(
             )
         }
         /** Logout button */
+
+       
         /** Logout button */
         item {
             Row(

@@ -32,6 +32,7 @@
     <string name="ajout_objet">Ajout objet</string>
     <string name="fiche_exchange">Fiche échange</string>
     <string name="current_exchanges">Mes échanges en cours</string>
+     <string name="my_objects">Mes Objets</string>
     <string name="terms_and_conditions"><![CDATA[Terms & Conditions]]></string>
     <string name="settings">Settings</string>
     <string name="your_profile">Your Profile</string>
