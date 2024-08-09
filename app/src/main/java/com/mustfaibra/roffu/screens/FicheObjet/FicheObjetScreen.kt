@@ -9,6 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -111,15 +113,55 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             }
         }
 
-        Image(
-            painter = rememberImagePainter(data = obj.image),
-            contentDescription = "Object Image",
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 200.dp)
-                .clip(shape = RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Fit
-        )
+                .padding(16.dp)
+                .clip(RoundedCornerShape(16.dp)),
+            backgroundColor = Color(0xFFF2F2F2),
+            elevation = 4.dp
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFF2F2F2))
+            ) {
+                Image(
+                    painter = rememberImagePainter(data = obj.image),
+                    contentDescription = "Object Image",
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .aspectRatio(1f)
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Fit
+                )
+                // Ajouter les icônes de partage et de signalement en bas à droite
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconButton(onClick = { /* TODO: Action de partage */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Partager",
+                            tint = Color.Black
+                        )
+                    }
+
+                    IconButton(onClick = { /* TODO: Action de signalement */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Flag,
+                            contentDescription = "Signaler",
+                            tint = Color.Red 
+                        )
+                    }
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
