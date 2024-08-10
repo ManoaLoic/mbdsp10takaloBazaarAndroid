@@ -1,6 +1,5 @@
 package com.mustfaibra.roffu.components
 
-import android.os.Bundle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +15,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
@@ -27,14 +25,21 @@ import com.mustfaibra.roffu.models.Object
 fun ObjectCard(
     obj: Object,
     isRecent: Boolean,
-    navController: NavHostController
+    navController: NavHostController,
+    disableNavigation: Boolean = false, // Optional parameter with default value
+    onClick: (() -> Unit)? = null // Optional click handler
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .shadow(8.dp, shape = RoundedCornerShape(8.dp))
-            .clickable { navController.navigate("ficheobjet/${obj.id}") },
+            .clickable {
+                onClick?.invoke() // Trigger the custom click if provided
+                if (!disableNavigation) {
+                    navController.navigate("ficheobjet/${obj.id}")
+                }
+            },
         backgroundColor = Color.White,
         elevation = 4.dp
     ) {
@@ -73,7 +78,11 @@ fun ObjectCard(
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { navController.navigate("userprofile/${obj.user?.id}") }
+                modifier = Modifier.clickable(enabled = !disableNavigation) {
+                    if (!disableNavigation) {
+                        navController.navigate("userprofile/${obj.user?.id}")
+                    }
+                }
             ) {
                 Image(
                     painter = rememberImagePainter(

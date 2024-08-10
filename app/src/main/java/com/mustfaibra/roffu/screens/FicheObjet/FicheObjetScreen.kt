@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mustfaibra.roffu.models.Object
+import com.mustfaibra.roffu.sealed.Screen
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -51,6 +52,21 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
                     }
                 }
             )
+        },
+        bottomBar = {
+            obj?.let {
+                Button(
+                    onClick = {
+                        navController.navigate("${Screen.ProposerEchange}/${it.id}")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
+                ) {
+                    Text("Proposer un échange", color = Color.White)
+                }
+            }
         }
     ) { paddingValues ->
         Box(

@@ -5,6 +5,7 @@ import com.mustfaibra.roffu.api.ExchangeService
 import com.mustfaibra.roffu.api.ObjectService
 import com.mustfaibra.roffu.api.RetrofitInstance
 import com.mustfaibra.roffu.api.RetrofitManager
+import com.mustfaibra.roffu.api.UserService
 import com.mustfaibra.roffu.services.SessionService
 import dagger.Module
 import dagger.Provides
@@ -27,6 +28,12 @@ object NetworkModule {
     @Singleton
     fun provideObjectService(): ObjectService {
         return RetrofitInstance.createService(ObjectService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserService(): UserService {
+        return RetrofitInstance.createService(UserService::class.java)
     }
 
     @Provides
