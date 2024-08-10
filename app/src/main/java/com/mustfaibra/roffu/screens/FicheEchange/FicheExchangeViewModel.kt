@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustfaibra.roffu.api.ExchangeService
 import com.mustfaibra.roffu.models.Exchange
+import com.mustfaibra.roffu.services.SessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FicheExchangeViewModel @Inject constructor(
-    private val exchangeService: ExchangeService
+    private val exchangeService: ExchangeService,
+    public val sessionService: SessionService
 ) : ViewModel() {
 
     private val _currentExchanges = MutableStateFlow<List<Exchange>>(emptyList())

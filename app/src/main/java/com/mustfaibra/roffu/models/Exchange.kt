@@ -3,8 +3,10 @@ package com.mustfaibra.roffu.models
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.mustfaibra.roffu.utils.getFormattedDate
+import kotlinx.serialization.Serializable
 import java.util.*
 
+@Serializable
 data class Exchange(
     @Expose
     @SerializedName("id")
@@ -20,7 +22,7 @@ data class Exchange(
 
     @Expose
     @SerializedName("status")
-    val status: String,
+    private val _status: String,
 
     @Expose
     @SerializedName("note")
@@ -57,8 +59,18 @@ data class Exchange(
     @Expose
     @SerializedName("exchange_objects")
     val exchangeObjects: List<ExchangeObject>?
-)
+){
+    val status: String
+        get() = when (_status) {
+            "Proposed" -> "Proposé"
+            "Accepted" -> "Accepté"
+            "Refused" -> "Refusé"
+            "Cancelled" -> "Annulé"
+            else -> _status
+        }
+}
 
+@Serializable
 data class ExchangeObject(
     @Expose
     @SerializedName("id")
@@ -85,4 +97,23 @@ data class ExchangeResponse(
     @Expose
     @SerializedName("data")
     val data: List<Exchange>
+)
+
+@Serializable
+data class ProposeExchangeRequest(
+    val rcvUserId: Int,
+    val rcvObjectId: List<Int>,
+    val prpObjectId: List<Int>
+)
+
+@Serializable
+data class ErrorResponse(
+    val message: String,
+    val error: String
+)
+
+@Serializable
+data class CreateResponse(
+    val message: String,
+    val exchange: Exchange
 )

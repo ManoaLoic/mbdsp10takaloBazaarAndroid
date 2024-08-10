@@ -1,6 +1,7 @@
 package com.mustfaibra.roffu.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -39,7 +40,8 @@ fun ObjectSection(
             modifier = Modifier
                 .horizontalScroll(rememberScrollState())
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             objects.forEach { obj ->
                 Box(
@@ -53,24 +55,29 @@ fun ObjectSection(
                         navController = navController,
                         disableNavigation = true
                     )
-                    IconButton(
-                        onClick = { onRemoveObjectClick(obj) },
+                    Box(
                         modifier = Modifier
-                            .size(24.dp) // Size of the close button
+                            .size(24.dp)
                             .align(Alignment.TopEnd)
-                            .offset(x = (-12).dp, y = (-12).dp) // Offset to position the button at the corner
-                            .background(Color.White, shape = CircleShape)
+                            .offset(x = (1).dp, y = (-5).dp)
+                            .background(Color.Black, shape = CircleShape)
+                            .clickable { onRemoveObjectClick(obj) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Remove",
-                            tint = Color.Red
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .align(Alignment.Center)
                         )
                     }
                 }
             }
             Box(
-                modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp / 2 - 24.dp)
+                modifier = Modifier
+                    .width(LocalConfiguration.current.screenWidthDp.dp / 2 - 24.dp),
+                contentAlignment = Alignment.Center
             ) {
                 AddObjectButton(onClick = onAddObjectClick)
             }

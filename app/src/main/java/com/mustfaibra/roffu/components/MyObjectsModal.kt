@@ -1,6 +1,5 @@
 package com.mustfaibra.roffu.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,12 +14,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.mustfaibra.roffu.api.ObjectService
 import com.mustfaibra.roffu.models.Object
-import com.mustfaibra.roffu.services.SessionService
 import kotlinx.coroutines.launch
 
 @Composable
 fun MyObjectsModal(
     userId: Int,
+    existingObjects: List<Object>, // List of objects already in the selected list
     onDismiss: () -> Unit,
     navController: NavHostController,
     onObjectSelected: (Object) -> Unit,
@@ -37,7 +36,10 @@ fun MyObjectsModal(
             val params = mapOf("page" to 1, "limit" to 20)
             val response = objectService.getUserObjects(userId, params)
             if (response.isSuccessful) {
-                userObjects = response.body()?.data?.objects ?: emptyList()
+                // Filter out objects that are already in the existingObjects list
+                userObjects = response.body()?.data?.objects?.filter { obj ->
+                    existingObjects.none { it.id == obj.id }
+                } ?: emptyList()
             }
             isLoading = false
         }

@@ -1,7 +1,9 @@
 package com.mustfaibra.roffu.api
 
+import com.mustfaibra.roffu.models.CreateResponse
 import com.mustfaibra.roffu.models.Exchange
 import com.mustfaibra.roffu.models.ExchangeResponse
+import com.mustfaibra.roffu.models.ProposeExchangeRequest
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -11,7 +13,7 @@ interface ExchangeService {
     suspend fun getExchangeById(@Path("exchangeId") exchangeId: String): Response<Exchange>
 
     @POST("exchange/proposed")
-    suspend fun proposerExchange(@Body body: Any): Response<Any>
+    suspend fun proposerExchange(@Body body: ProposeExchangeRequest): Response<CreateResponse>
 
     @PATCH("exchange/{exchangeId}/accept")
     suspend fun acceptExchange(@Path("exchangeId") exchangeId: String, @Body body: Any): Response<Any>

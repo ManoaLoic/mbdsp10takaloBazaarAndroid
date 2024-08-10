@@ -5,14 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.mustfaibra.roffu.api.ExchangeService
 import com.mustfaibra.roffu.api.ObjectService
 import com.mustfaibra.roffu.api.UserService
+import com.mustfaibra.roffu.models.CreateResponse
 import com.mustfaibra.roffu.models.CustomUser
+import com.mustfaibra.roffu.models.ErrorResponse
+import com.mustfaibra.roffu.models.Exchange
 import com.mustfaibra.roffu.models.Object
+import com.mustfaibra.roffu.models.ProposeExchangeRequest
 import com.mustfaibra.roffu.models.User
 import com.mustfaibra.roffu.services.SessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,12 +73,48 @@ class ProposerEchangeViewModel @Inject constructor(
         }
     }
 
-    fun proposeExchange(objectId: Int) {
+    fun proposeExchange(
+        proposerObjects: List<Object>,
+        receiverObjects: List<Object>,
+        onSuccess: (String, Exchange?) -> Unit,
+        onError: (String) -> Unit
+    ) {
         viewModelScope.launch {
-//            val proposerId = user.value?.id
-//            proposerId?.let {
-//                exchangeService.proposeExchange(it, objectId)
-//            }
+            isLoading.value = true
+
+            val proposerId = user.value?.id
+            val receiverId = obj.value?.user?.id
+
+            if (proposerId != null && receiverId != null) {
+                val requestBody = ProposeExchangeRequest(
+                    rcvUserId = receiverId,
+                    rcvObjectId = receiverObjects.map { it.id },
+                    prpObjectId = proposerObjects.map { it.id }
+                )
+
+                val response = exchangeService.proposerExchange(requestBody)
+
+                if (response.isSuccessful) {
+                    var responseExchange = response.body()
+                    onSuccess("Échange proposé avec succès!", responseExchange?.exchange)
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.let {
+                        try {
+                            Json.decodeFromString<ErrorResponse>(ErrorResponse.serializer(), it).error
+                        } catch (e: Exception) {
+                            "Erreur lors de la proposition de l'échange."
+                        }
+                    } ?: "Erreur inconnue."
+
+                    onError(errorMessage)
+                }
+            } else {
+                onError("Utilisateur non trouvé.")
+            }
+
+            isLoading.value = false
         }
     }
 }
+

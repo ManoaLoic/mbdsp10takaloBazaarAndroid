@@ -1,7 +1,7 @@
 package com.mustfaibra.roffu.screens.ProposerEchange
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -14,12 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mustfaibra.roffu.components.MyObjectsModal
-import com.mustfaibra.roffu.components.ObjectCard
 import com.mustfaibra.roffu.components.ObjectSection
 import com.mustfaibra.roffu.models.Object
 
@@ -33,21 +33,45 @@ fun ProposerEchangeScreen(
     var showModal by remember { mutableStateOf(false) }
     var selectedUserId by remember { mutableStateOf(0) } // This will hold the userId for the modal
 
-    val proposerObjects = remember { mutableStateListOf<Object>() }
     val receiverObjects = remember { mutableStateListOf<Object>() }
-
-    // Fetch the object details
-    LaunchedEffect(objectId) {
-        viewModel.fetchObjectById(objectId)
-    }
+    val proposerObjects = remember { mutableStateListOf<Object>() }
 
     val obj by viewModel.obj.collectAsState()
     val user by viewModel.user.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // Add the passed object to the proposerObjects list initially
+    val context = LocalContext.current
+
+    LaunchedEffect(objectId) {
+        viewModel.fetchObjectById(objectId)
+    }
+
     LaunchedEffect(obj) {
-        obj?.let { proposerObjects.add(it) }
+        obj?.let { receiverObjects.add(it) }
+    }
+
+    fun handleProposeExchange() {
+        if (receiverObjects.isEmpty() || proposerObjects.isEmpty()) {
+            isProposing = false
+            Toast.makeText(context, "Les deux listes doivent contenir au moins un objet.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        viewModel.proposeExchange(
+            proposerObjects = proposerObjects,
+            receiverObjects = receiverObjects,
+            onSuccess = { message, exchange ->
+                isProposing = false
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                navController.navigate("ficheExchange/${exchange?.id}") {
+                    popUpTo("home") { inclusive = true }
+                }
+            },
+            onError = { message ->
+                isProposing = false
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
+        )
     }
 
     Scaffold(
@@ -73,14 +97,19 @@ fun ProposerEchangeScreen(
                 Button(
                     onClick = {
                         isProposing = true
-                        viewModel.proposeExchange(objectId)
+                        handleProposeExchange()
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    enabled = !isProposing
                 ) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = "Proposer")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Proposer")
+                    if (isProposing) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    } else {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "Proposer")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Proposer")
+                    }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 OutlinedButton(
@@ -160,28 +189,28 @@ fun ProposerEchangeScreen(
                         item {
                             ObjectSection(
                                 title = "Objet(s) à échanger",
-                                objects = proposerObjects,
+                                objects = receiverObjects,
                                 navController = navController,
                                 onAddObjectClick = {
                                     selectedUserId = obj?.user?.id ?: 0
                                     showModal = true
                                 },
                                 onRemoveObjectClick = { selectedObject ->
-                                    proposerObjects.remove(selectedObject)
+                                    receiverObjects.remove(selectedObject)
                                 }
                             )
                         }
                         item {
                             ObjectSection(
                                 title = "Objet(s) en échange",
-                                objects = receiverObjects,
+                                objects = proposerObjects,
                                 navController = navController,
                                 onAddObjectClick = {
                                     selectedUserId = viewModel.user.value?.id ?: 0
                                     showModal = true
                                 },
                                 onRemoveObjectClick = { selectedObject ->
-                                    receiverObjects.remove(selectedObject)
+                                    proposerObjects.remove(selectedObject)
                                 }
                             )
                         }
@@ -197,11 +226,12 @@ fun ProposerEchangeScreen(
             onDismiss = { showModal = false },
             navController = navController,
             objectService = viewModel.objectService,
+            existingObjects = if (selectedUserId == obj?.user?.id) receiverObjects else proposerObjects,
             onObjectSelected = { selectedObject ->
                 if (selectedUserId == obj?.user?.id) {
-                    proposerObjects.add(selectedObject)
-                } else {
                     receiverObjects.add(selectedObject)
+                } else {
+                    proposerObjects.add(selectedObject)
                 }
             }
         )

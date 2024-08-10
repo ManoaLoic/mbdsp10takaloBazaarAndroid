@@ -16,12 +16,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mustfaibra.roffu.components.ObjectCard
 import com.mustfaibra.roffu.models.Exchange
+import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.screens.FicheEchange.FicheExchangeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,8 +38,11 @@ fun FicheExchangeScreen(
     val exchange by exchangeViewModel.getExchangeById(exchangeId).collectAsState(initial = null)
     val isLoading by exchangeViewModel.isLoading.collectAsState()
 
+    var currentUser by remember { mutableStateOf<LoginUser?>(null) }
+
     LaunchedEffect(exchangeId) {
         exchangeViewModel.fetchExchangeById(exchangeId)
+        currentUser = exchangeViewModel.sessionService.getUser()
     }
 
     Scaffold(
@@ -53,30 +59,32 @@ fun FicheExchangeScreen(
             )
         },
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(
-                    onClick = { /* Handle accept action */ },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
-                    modifier = Modifier.weight(1f)
+            if(currentUser?.id == exchange?.receiverUserId){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = "Accepter")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Accepter")
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                OutlinedButton(
-                    onClick = { /* Handle reject action */ },
-                    colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.White),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Refuser")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Refuser")
+                    Button(
+                        onClick = { /* Handle accept action */ },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "Accepter")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Accepter")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    OutlinedButton(
+                        onClick = { /* Handle reject action */ },
+                        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.White),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = "Refuser")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Refuser")
+                    }
                 }
             }
         }
@@ -108,7 +116,7 @@ fun FicheExchangeScreen(
                         item {
                             Text(
                                 text = "Status: ${ex.status} ($formattedDate)",
-                                style = MaterialTheme.typography.h6
+                                style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)
                             )
                         }
                         item {
@@ -171,7 +179,7 @@ fun FicheExchangeScreen(
                             ) {
                                 Text(
                                     text = "Proposition",
-                                    style = MaterialTheme.typography.h6,
+                                    style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colors.onSecondary
                                 )
                             }
@@ -179,7 +187,11 @@ fun FicheExchangeScreen(
                         items(propositionObjects.chunked(2)) { rowItems ->
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 rowItems.forEach { exchangeObject ->
-                                    Box(modifier = Modifier.weight(1f).padding(8.dp)) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .width(LocalConfiguration.current.screenWidthDp.dp / 2 - 24.dp)
+                                    ) {
                                         ObjectCard(exchangeObject.obj, false, navController)
                                     }
                                 }
@@ -196,7 +208,7 @@ fun FicheExchangeScreen(
                             ) {
                                 Text(
                                     text = "Contre",
-                                    style = MaterialTheme.typography.h6,
+                                    style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colors.onSecondary
                                 )
                             }
@@ -204,7 +216,11 @@ fun FicheExchangeScreen(
                         items(receiverObjects.chunked(2)) { rowItems ->
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 rowItems.forEach { exchangeObject ->
-                                    Box(modifier = Modifier.weight(1f).padding(8.dp)) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(LocalConfiguration.current.screenWidthDp.dp / 2 - 24.dp)
+                                            .padding(8.dp)
+                                    ) {
                                         ObjectCard(exchangeObject.obj, false, navController)
                                     }
                                 }
@@ -229,7 +245,7 @@ fun FicheExchangeScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Détails",
-                                        style = MaterialTheme.typography.h6,
+                                        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
                                         color = MaterialTheme.colors.onSecondary
                                     )
                                 }
@@ -237,17 +253,27 @@ fun FicheExchangeScreen(
                         }
                         item {
                             Column(modifier = Modifier.padding(8.dp)) {
-                                Text(text = "Depuis : $formattedDate", style = MaterialTheme.typography.body1)
-                                Text(text = "Lieu du rendez-vous : ${ex.meetingPlace ?: "N/A"}", style = MaterialTheme.typography.body1)
-                                Text(text = "Note : ${ex.note ?: "N/A"}", style = MaterialTheme.typography.body1)
-                                Text(text = "Date du rendez-vous : ${ex.appointmentDate ?: "N/A"}", style = MaterialTheme.typography.body1)
+                                Text(
+                                    text = "Depuis : $formattedDate",
+                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                )
+                                Text(
+                                    text = "Lieu du rendez-vous : ${ex.meetingPlace ?: "N/A"}",
+                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                )
+                                Text(
+                                    text = "Note : ${ex.note ?: "N/A"}",
+                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                )
+                                Text(
+                                    text = "Date du rendez-vous : ${ex.appointmentDate ?: "N/A"}",
+                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                )
                             }
                         }
                     }
                 } ?: Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    if (exchange == null) {
-                        Text(text = "Exchange details not available.")
-                    }
+                    Text(text = "Détails de l'échange non disponibles.")
                 }
             }
         }
