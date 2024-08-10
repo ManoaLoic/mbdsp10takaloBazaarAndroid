@@ -3,16 +3,22 @@ package com.mustfaibra.roffu.screens.ficheobjet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustfaibra.roffu.api.ObjectService
+import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.models.Object
+import com.mustfaibra.roffu.services.SessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class FicheObjetViewModel @Inject constructor(
-    private val objectService: ObjectService
+    private val objectService: ObjectService,
+    private val sessionService: SessionService
 ) : ViewModel() {
 
     private val _object = MutableStateFlow<Object?>(null)
@@ -28,5 +34,10 @@ class FicheObjetViewModel @Inject constructor(
                 println("Error fetching object: ${response.errorBody()?.string()}")
             }
         }
+    }
+
+    fun getCurrentUser(): Flow<LoginUser?> = flow {
+        val user = runBlocking { sessionService.getUser() }
+        emit(user)
     }
 }
