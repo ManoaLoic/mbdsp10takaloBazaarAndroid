@@ -3,12 +3,15 @@ package com.mustfaibra.roffu.screens.ficheobjet
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
@@ -50,19 +53,39 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
         ) {
             obj?.let {
-                ObjectDetail(obj = it, navController = navController)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 60.dp)
+                ) {
+                    item {
+                        ObjectDetail(obj = it, navController = navController)
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        navController.navigate("exchange/propose/${it.user?.id}") {
+                            popUpTo("home") { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
+                ) {
+                    Text("Proposer un échange", color = Color.White)
+                }
             } ?: run {
-                CircularProgressIndicator()
-                Text("Chargement...")
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                Text("", modifier = Modifier.align(Alignment.Center))
             }
         }
     }
@@ -70,9 +93,15 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
 
 @Composable
 fun ObjectDetail(obj: Object, navController: NavHostController) {
+    val viewModel: FicheObjetViewModel = hiltViewModel()
+    val user by viewModel.getCurrentUser().collectAsState(initial = null)
+
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
+        // Contenu du détail de l'objet
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -101,13 +130,13 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             if (obj.status == "Available") {
                 Text(
                     text = "Disponible",
-                    color = Color(0xFF388E3C), // Vert foncé
+                    color = Color(0xFF388E3C),
                     style = MaterialTheme.typography.body2
                 )
             } else {
                 Text(
                     text = "Retiré",
-                    color = Color(0xFFD32F2F), // Rouge foncé
+                    color = Color(0xFFD32F2F),
                     style = MaterialTheme.typography.body2
                 )
             }
@@ -137,28 +166,57 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
                         .clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Fit
                 )
-                // Ajouter les icônes de partage et de signalement en bas à droite
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(onClick = { /* TODO: Action de partage */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = "Partager",
-                            tint = Color.Black
-                        )
-                    }
+            }
+        }
 
-                    IconButton(onClick = { /* TODO: Action de signalement */ }) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Nouvelle zone pour les icônes
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Icônes à gauche (mettre à jour et supprimer)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (user?.id == obj.user?.id) {
+                    IconButton(onClick = { /* TODO: Action de mise à jour */ }) {
                         Icon(
-                            imageVector = Icons.Default.Flag,
-                            contentDescription = "Signaler",
-                            tint = Color.Red 
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Mettre à jour",
+                            tint = Color.Gray
                         )
                     }
+                    IconButton(onClick = { /* TODO: Action de suppression */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Supprimer",
+                            tint = Color.Red
+                        )
+                    }
+                }
+            }
+
+            // Icônes à droite (partager et signaler)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                IconButton(onClick = { /* TODO: Action de partage */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Partager",
+                        tint = Color.Black
+                    )
+                }
+                IconButton(onClick = { /* TODO: Action de signalement */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Flag,
+                        contentDescription = "Signaler",
+                        tint = Color.Red
+                    )
                 }
             }
         }
@@ -193,7 +251,7 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(8.dp)
-                .background(Color(0xFFD3D3D3), shape = RoundedCornerShape(8.dp)) // Gris plus clair
+                .background(Color(0xFFD3D3D3), shape = RoundedCornerShape(8.dp))
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             Icon(Icons.Default.CalendarToday, contentDescription = "Date Icon")
@@ -205,29 +263,6 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
                 style = MaterialTheme.typography.body2
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                navController.navigate("exchange/propose/${obj.user?.id}") {
-                    popUpTo("home") { inclusive = true }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
-        ) {
-            Text("Proposer un échange", color = Color.White)
-        }
     }
 }
 
-fun getStatusLabel(status: String): String {
-    return when (status) {
-        "Available" -> "Disponible"
-        "Removed" -> "Retiré"
-        else -> status
-    }
-}
