@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FicheObjetViewModel @Inject constructor(
     private val objectService: ObjectService,
-    private val sessionService: SessionService
+    public val sessionService: SessionService
 ) : ViewModel() {
 
     private val _object = MutableStateFlow<Object?>(null)

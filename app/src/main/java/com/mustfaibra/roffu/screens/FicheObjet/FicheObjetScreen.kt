@@ -18,6 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
+import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.models.Object
 import com.mustfaibra.roffu.sealed.Screen
 import java.text.SimpleDateFormat
@@ -38,7 +42,10 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
     val viewModel: FicheObjetViewModel = hiltViewModel()
     val obj by viewModel.obj.collectAsState()
 
+    var currentUser by remember { mutableStateOf<LoginUser?>(null) }
+
     LaunchedEffect(objectId) {
+        currentUser = viewModel.sessionService.getUser()
         viewModel.fetchObjectById(objectId)
     }
 
@@ -55,16 +62,18 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
         },
         bottomBar = {
             obj?.let {
-                Button(
-                    onClick = {
-                        navController.navigate("${Screen.ProposerEchange}/${it.id}")
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
-                ) {
-                    Text("Proposer un échange", color = Color.White)
+                if(it.userId != currentUser?.id){
+                    Button(
+                        onClick = {
+                            navController.navigate("${Screen.ProposerEchange}/${it.id}")
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
+                    ) {
+                        Text("Proposer un échange", color = Color.White)
+                    }
                 }
             }
         }
@@ -83,21 +92,6 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
                     item {
                         ObjectDetail(obj = it, navController = navController)
                     }
-                }
-
-                Button(
-                    onClick = {
-                        navController.navigate("exchange/propose/${it.user?.id}") {
-                            popUpTo("home") { inclusive = true }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
-                ) {
-                    Text("Proposer un échange", color = Color.White)
                 }
             } ?: run {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
