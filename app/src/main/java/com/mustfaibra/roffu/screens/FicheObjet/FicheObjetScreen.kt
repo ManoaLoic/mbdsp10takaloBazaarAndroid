@@ -193,7 +193,9 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (user?.id == obj.user?.id) {
-                    IconButton(onClick = { /* TODO: Action de mise à jour */ }) {
+                    IconButton(onClick = {
+                        navController.navigate("editobject/${obj.id}")
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Mettre à jour",
