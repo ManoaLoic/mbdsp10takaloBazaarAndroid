@@ -36,20 +36,6 @@ data class ObjectResponse(
     val currentPage: Int
 )
 
-@Serializable
-data class UpdateObject(
-    val name: String,
-    val description: String,
-    val category_id: Int,
-    val image_file: String?
-)
-
-@Serializable
-data class UpdateObjectResponse(
-    val message: String,
-    val data: Object
-)
-
 data class ObjectListResponse(
     val data: ObjectResponse
 )

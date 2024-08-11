@@ -3,13 +3,10 @@ package com.mustfaibra.roffu.api
 import com.mustfaibra.roffu.models.Object
 import com.mustfaibra.roffu.models.ObjectListResponse
 import com.mustfaibra.roffu.models.ObjectRequest
-import com.mustfaibra.roffu.models.UpdateObject
-import com.mustfaibra.roffu.models.UpdateObjectResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
@@ -17,10 +14,6 @@ import retrofit2.http.QueryMap
 interface ObjectService {
     @GET("object/{id}")
     suspend fun getObjectById(@Path("id") id: Int): Response<Object>
-
-    @PUT("objects/{id}")
-    suspend fun updateObject(@Path("id") id: Int, @Body objectRequest: UpdateObject): Response<UpdateObjectResponse>
-
 
     @GET("user/{userId}/objects")
     suspend fun getUserObjects(
