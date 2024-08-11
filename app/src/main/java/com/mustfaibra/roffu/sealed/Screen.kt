@@ -79,21 +79,21 @@ sealed class Screen(
         icon = R.drawable.ic_settings,
     )
 
-    object OrderHistory : Screen(
-        route = "orders",
-        title = R.string.orders_history,
+    object ExchangeHistory : Screen(
+        route = "exchangeHistory",
+        title = R.string.historique_exchange,
         icon = R.drawable.ic_history,
     )
 
-    object PrivacyPolicies : Screen(
-        route = "privacy-policies",
-        title = R.string.privacy_and_policies,
+    object UpdateAccount : Screen(
+        route = "updateAccount",
+        title = R.string.modifier_account,
         icon = R.drawable.ic_lock,
     )
 
-    object TermsConditions : Screen(
-        route = "terms-conditions",
-        title = R.string.terms_and_conditions,
+    object ChangePassword : Screen(
+        route = "changePassword",
+        title = R.string.change_password,
         icon = R.drawable.ic_terms,
     )
 

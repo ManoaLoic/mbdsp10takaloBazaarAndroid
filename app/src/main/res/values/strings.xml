@@ -32,11 +32,15 @@
     <string name="ajout_objet">Ajout objet</string>
     <string name="fiche_exchange">Fiche échange</string>
     <string name="current_exchanges">Mes échanges en cours</string>
+    <string name="historique_exchange">Mon historique d\'échanges</string>
+    <string name="logOut">Déconnexion</string>
+    <string name="modifier_account">Modifier mon compte</string>
+    <string name="change_password">Changer mon mot de passe</string>
     <string name="my_objects">Mes Objets</string>
     <string name="terms_and_conditions"><![CDATA[Terms & Conditions]]></string>
     <string name="proposer_echange">Proposer échange</string>
     <string name="settings">Settings</string>
-    <string name="your_profile">Your Profile</string>
+    <string name="your_profile">Mon Profil</string>
     <string name="sub_total">Subtotal</string>
     <string name="shipping">Shipping</string>
     <string name="delivery_address">Delivery Address</string>

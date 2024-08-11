@@ -19,6 +19,10 @@ data class CustomUser(
         val username:String,
 
         @Expose
+        @SerializedName("email")
+        val email:String,
+
+        @Expose
         @SerializedName("last_name")
         val lastName:String,
 
@@ -65,3 +69,18 @@ data class UserResponse(
         @SerializedName("user")
         val user: CustomUser
 )
+
+@Serializable
+data class UpdateUserRequest(
+        val username: String? = null,
+        val image: String? = null,
+        val email: String? = null,
+        val oldPassword: String? = null,
+        val password: String? = null,
+        val confirmPassword: String? = null,
+        val firstName: String? = null,
+        val lastName: String? = null,
+        val profilePicture: String? = null,
+        val gender: String? = null
+)
+

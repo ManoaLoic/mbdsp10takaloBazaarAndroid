@@ -37,6 +37,7 @@ import com.mustfaibra.roffu.components.CustomSnackBar
 import com.mustfaibra.roffu.models.CartItem
 import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.providers.LocalNavHost
+import com.mustfaibra.roffu.screens.ChangePassword.ChangePasswordScreen
 import com.mustfaibra.roffu.screens.ajoutobjet.AjoutObjetScreen
 import com.mustfaibra.roffu.screens.bookmarks.BookmarksScreen
 import com.mustfaibra.roffu.screens.cart.CartScreen
@@ -223,7 +224,7 @@ fun ScaffoldSection(
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     LoginScreen(
                         onUserAuthenticated = {
-                            controller.navigate(Screen.Profile.route) {
+                            controller.navigate(Screen.Home.route) {
                                 popUpTo(Screen.Login.route) { inclusive = true }
                             }
                         },
@@ -272,29 +273,6 @@ fun ScaffoldSection(
                         },
                     )
                 }
-                composable(Screen.Checkout.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    user.whatIfNotNull(
-                        whatIf = {
-                            CheckoutScreen(
-                                cartItems = cartItems,
-                                onBackRequested = onBackRequested,
-                                onCheckoutSuccess = {
-                                    onNavigationRequested(Screen.OrderHistory.route, true)
-                                },
-                                onToastRequested = onToastRequested,
-                                onChangeLocationRequested = {
-                                    onNavigationRequested(Screen.LocationPicker.route, false)
-                                }
-                            )
-                        },
-                        whatIfNot = {
-                            LaunchedEffect(key1 = Unit) {
-                                onUserNotAuthorized()
-                            }
-                        },
-                    )
-                }
                 composable(Screen.LocationPicker.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     LocationPickerScreen(
@@ -307,32 +285,18 @@ fun ScaffoldSection(
                         whatIf = {
                             onStatusBarColorChange(MaterialTheme.colors.background)
                             ProfileScreen(
-                                user = it,
                                 onNavigationRequested = onNavigationRequested,
                             )
                         },
                         whatIfNot = {
                             LoginScreen(
                                 onUserAuthenticated = {
-                                    controller.navigate(Screen.Profile.route) {
+                                    controller.navigate(Screen.Home.route) {
                                         popUpTo(Screen.Login.route) { inclusive = true }
                                     }
                                 },
                                 onToastRequested = onToastRequested,
                             )
-                        },
-                    )
-                }
-                composable(Screen.OrderHistory.route) {
-                    user.whatIfNotNull(
-                        whatIf = {
-                            onStatusBarColorChange(MaterialTheme.colors.background)
-                            OrdersHistoryScreen(onBackRequested = onBackRequested)
-                        },
-                        whatIfNot = {
-                            LaunchedEffect(key1 = Unit) {
-                                onUserNotAuthorized()
-                            }
                         },
                     )
                 }
@@ -375,6 +339,13 @@ fun ScaffoldSection(
                 ) { backStackEntry ->
                     val objectId = backStackEntry.arguments?.getInt("objectId") ?: 0
                     EditObjectScreen(navController = controller, objectId)
+                }
+                composable(
+                    "changePassword/{userId}",
+                    arguments = listOf(navArgument("userId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val userId = backStackEntry.arguments?.getInt("userId") ?: 0
+                    ChangePasswordScreen(navController = controller, userId = userId)
                 }
                 composable(
                     "ficheExchange/{exchangeId}",

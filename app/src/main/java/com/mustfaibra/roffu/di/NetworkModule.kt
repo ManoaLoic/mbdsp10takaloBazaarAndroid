@@ -1,6 +1,7 @@
 package com.mustfaibra.roffu.di
 
 import android.content.Context
+import com.mustfaibra.roffu.api.AuthentificationService
 import com.mustfaibra.roffu.api.ExchangeService
 import com.mustfaibra.roffu.api.ObjectService
 import com.mustfaibra.roffu.api.RetrofitInstance
@@ -28,6 +29,12 @@ object NetworkModule {
     @Singleton
     fun provideObjectService(): ObjectService {
         return RetrofitInstance.createService(ObjectService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthentificationService(): AuthentificationService {
+        return RetrofitInstance.createService(AuthentificationService::class.java)
     }
 
     @Provides
