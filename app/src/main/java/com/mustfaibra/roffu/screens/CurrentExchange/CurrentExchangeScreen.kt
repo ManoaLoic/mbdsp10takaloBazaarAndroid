@@ -78,7 +78,7 @@ fun CurrentExchangeScreen(
 
                     if (exchanges.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(text = "No current exchanges available.")
+                            Text(text = "Aucun échange en cours.")
                         }
                     } else {
                         LazyColumn(

@@ -97,7 +97,6 @@ fun HomeScreen(
                 /** Handle where to scroll */
                 val currentPage = pagerState.currentPage
                 val pagesCount = pagerState.pageCount
-                Timber.d("Current pager page is $currentPage and count is $pagesCount")
                 when {
                     currentPage < (pagesCount - 1) -> {
                         /** go to next page */

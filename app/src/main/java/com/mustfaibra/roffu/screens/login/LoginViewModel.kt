@@ -59,6 +59,7 @@ class LoginViewModel @Inject constructor(
                         uiState.value = UiState.Success
                         saveUserToPreferences(loginResponse.user)
                         sessionService.saveUser(loginResponse.user)
+                        RetrofitInstance.setToken(loginResponse.user.token)
                         onAuthenticated()
                     } ?: run {
                         uiState.value = UiState.Error(error = Error.Unknown)

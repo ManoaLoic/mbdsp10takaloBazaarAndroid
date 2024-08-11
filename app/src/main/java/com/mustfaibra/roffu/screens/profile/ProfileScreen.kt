@@ -1,5 +1,8 @@
 package com.mustfaibra.roffu.screens.profile
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,18 +11,25 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -29,19 +39,22 @@ import com.mustfaibra.roffu.components.IconButton
 import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.sealed.Screen
 import com.mustfaibra.roffu.ui.theme.Dimension
+import java.io.File
 
 @Composable
 fun ProfileScreen(
-    user: LoginUser,
     onNavigationRequested: (route: String, removePreviousRoute: Boolean) -> Unit,
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val isLoggingOut by rememberUpdatedState(profileViewModel.isLoggingOut.value)
+    val isLoading by rememberUpdatedState(profileViewModel.isLoading.value)
+    val userProfile by rememberUpdatedState(profileViewModel.userProfile.value)
+
     val generalOptions = remember {
-        listOf(Screen.Settings, Screen.OrderHistory)
+        listOf(Screen.ExchangeHistory)
     }
     val personalOptions = remember {
-        listOf(Screen.PrivacyPolicies, Screen.TermsConditions)
+        listOf(Screen.UpdateAccount)
     }
     val exchangeOptions = remember {
         listOf(Screen.CurrentExchange)
@@ -61,18 +74,36 @@ fun ProfileScreen(
             )
         }
         /** Header section */
-        /** Header section */
         item {
-            // ProfileHeaderSection(...)
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+            } else {
+                userProfile?.let { user ->
+                    ProfileHeaderSection(
+                        image = user.profilePicture,
+                        name = "${user.firstName} ${user.lastName}",
+                        email = user.email,
+                        username = user.username,
+                        onImageClicked = { uri ->
+                            profileViewModel.updateUserProfilePicture(uri) {
+                                // Redirect to refresh the page
+                                onNavigationRequested(Screen.Profile.route, true)
+                            }
+                        }
+                    )
+                }
+            }
         }
-        /** Add virtual card section */
+
         /** Add virtual card section */
         /** My Objects section */
         item {
             Card(
                 modifier = Modifier.clickable { onNavigationRequested(Screen.MyObjects.route, false) },
                 shape = MaterialTheme.shapes.medium,
-                backgroundColor = MaterialTheme.colors.secondary,
+                backgroundColor = MaterialTheme.colors.primary,
                 contentColor = MaterialTheme.colors.onSecondary,
             ) {
                 Column(
@@ -98,7 +129,7 @@ fun ProfileScreen(
                         )
                     }
                     Text(
-                        text = "Voir et gérer vos objets !",
+                        text = "Garder un oeil sur vos biens et gérer les facilement.",
                         style = MaterialTheme.typography.body2,
                     )
                 }
@@ -106,42 +137,9 @@ fun ProfileScreen(
         }
 
         /** General options */
-        /** General options */
         item {
             Text(
-                text = "General",
-                style = MaterialTheme.typography.body1,
-            )
-        }
-        items(generalOptions) { option ->
-            ProfileOptionItem(
-                icon = option.icon,
-                title = option.title,
-                onOptionClicked = {
-                    onNavigationRequested(option.route, false)
-                },
-            )
-        }
-        /** Personal options */
-        /** Personal options */
-        item {
-            Text(
-                text = "Personal",
-                style = MaterialTheme.typography.body1,
-            )
-        }
-        items(personalOptions) { option ->
-            ProfileOptionItem(
-                icon = option.icon,
-                title = option.title,
-                onOptionClicked = {},
-            )
-        }
-        /** Echanges section */
-        /** Echanges section */
-        item {
-            Text(
-                text = "Echanges",
+                text = "Generale",
                 style = MaterialTheme.typography.body1,
             )
         }
@@ -154,53 +152,99 @@ fun ProfileScreen(
                 },
             )
         }
-        /** Logout button */
-
-       
-        /** Logout button */
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = Dimension.pagePadding)
-                    .background(MaterialTheme.colors.primary, shape = MaterialTheme.shapes.medium)
-                    .clickable {
-                        profileViewModel.logOut(
-                            onLogoutSuccess = {
-                                onNavigationRequested(Screen.Home.route, true)
-                            },
-                            onLogoutFailure = {
-                                onNavigationRequested(Screen.Home.route, true)
-                            }
-                        )
-                    },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (isLoggingOut) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        modifier = Modifier
-                            .padding(vertical = Dimension.sm, horizontal = Dimension.lg)
-                            .size(24.dp)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Rounded.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Text(
-                        text = "Se déconnecter",
-                        style = MaterialTheme.typography.button,
-                        color = Color.White,
-                        modifier = Modifier
-                            .padding(vertical = Dimension.sm, horizontal = Dimension.lg)
-                    )
-                }
-            }
+        items(generalOptions) { option ->
+            ProfileOptionItem(
+                icon = option.icon,
+                title = R.string.historique_exchange,
+                onOptionClicked = {
+                    onNavigationRequested(option.route, false)
+                },
+            )
         }
+        item {
+            ProfileOptionItem(
+                icon = R.drawable.ic_logout,
+                title = R.string.logOut,
+                onOptionClicked = {
+                    profileViewModel.logOut(
+                        onLogoutSuccess = {
+                            onNavigationRequested(Screen.Home.route, true)
+                        },
+                        onLogoutFailure = {
+                            onNavigationRequested(Screen.Home.route, true)
+                        }
+                    )
+                },
+            )
+        }
+
+        /** Personal options */
+        item {
+            Text(
+                text = "Informations personnelles",
+                style = MaterialTheme.typography.body1,
+            )
+        }
+        items(personalOptions) { option ->
+            ProfileOptionItem(
+                icon = option.icon,
+                title = option.title,
+                onOptionClicked = {},
+            )
+        }
+        item {
+            ProfileOptionItem(
+                icon = R.drawable.ic_terms,
+                title = R.string.change_password,
+                onOptionClicked = {
+                    onNavigationRequested("changePassword/${profileViewModel.userId}", false)
+                },
+            )
+        }
+
+//        item {
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(vertical = Dimension.pagePadding)
+//                    .background(MaterialTheme.colors.primary, shape = MaterialTheme.shapes.medium)
+//                    .clickable {
+//                        profileViewModel.logOut(
+//                            onLogoutSuccess = {
+//                                onNavigationRequested(Screen.Home.route, true)
+//                            },
+//                            onLogoutFailure = {
+//                                onNavigationRequested(Screen.Home.route, true)
+//                            }
+//                        )
+//                    },
+//                horizontalArrangement = Arrangement.Center,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                if (isLoggingOut) {
+//                    CircularProgressIndicator(
+//                        color = Color.White,
+//                        modifier = Modifier
+//                            .padding(vertical = Dimension.sm, horizontal = Dimension.lg)
+//                            .size(24.dp)
+//                    )
+//                } else {
+//                    Icon(
+//                        imageVector = Icons.Rounded.KeyboardArrowRight,
+//                        contentDescription = null,
+//                        tint = Color.White,
+//                        modifier = Modifier.padding(end = 8.dp)
+//                    )
+//                    Text(
+//                        text = "Se déconnecter",
+//                        style = MaterialTheme.typography.button,
+//                        color = Color.White,
+//                        modifier = Modifier
+//                            .padding(vertical = Dimension.sm, horizontal = Dimension.lg)
+//                    )
+//                }
+//            }
+//        }
     }
 }
 
@@ -244,7 +288,108 @@ fun ProfileOptionItem(icon: Int?, title: Int?, onOptionClicked: () -> Unit) {
 }
 
 @Composable
-fun ProfileHeaderSection(image: Int?, name: String, email: String?, phone: String?) {
+fun ProfileHeaderSection(
+    image: String?,
+    name: String,
+    email: String?,
+    username: String?,
+    onImageClicked: (Uri) -> Unit
+) {
+    val context = LocalContext.current
+
+    // Create a URI for the image to be captured
+    val capturedImageUri = remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    // Camera Launcher
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success: Boolean ->
+            if (success && capturedImageUri.value != null) {
+                onImageClicked(capturedImageUri.value!!)
+            }
+        }
+    )
+
+    // Image Picker Launcher
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let { onImageClicked(it) }
+        }
+    )
+
+    // Permission Request Launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            val allPermissionsGranted = permissions.entries.all { it.value == true }
+            if (allPermissionsGranted) {
+                // Create a temporary file to store the captured image
+                val photoFile = File.createTempFile("temp_image", ".jpg", context.cacheDir)
+                capturedImageUri.value = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    photoFile
+                )
+                cameraLauncher.launch(capturedImageUri.value)
+            } else {
+                // Handle the case where permissions are not granted
+                // You can show a message or disable the camera option
+            }
+        }
+    )
+
+    // Dialog for choosing between camera and gallery
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Nouvelle photo de profil") },
+            text = {
+                Column {
+                    Text(
+                        text = "Caméra",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                permissionLauncher.launch(
+                                    arrayOf(
+                                        android.Manifest.permission.CAMERA,
+                                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                    )
+                                )
+                                showDialog = false
+                            }
+                            .padding(vertical = 16.dp),
+                        style = MaterialTheme.typography.body1
+                    )
+                    Divider()
+                    Text(
+                        text = "Gallérie",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                imagePickerLauncher.launch("image/*")
+                                showDialog = false
+                            }
+                            .padding(vertical = 16.dp),
+                        style = MaterialTheme.typography.body1
+                    )
+                }
+            },
+            buttons = {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -252,11 +397,17 @@ fun ProfileHeaderSection(image: Int?, name: String, email: String?, phone: Strin
         horizontalArrangement = Arrangement.spacedBy(Dimension.pagePadding),
     ) {
         AsyncImage(
-            modifier = Modifier
-                .size(Dimension.xlIcon)
-                .clip(CircleShape),
             model = image,
             contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(Dimension.xlIcon)
+                .clip(CircleShape)
+                .clickable {
+                    showDialog = true
+                },
+            placeholder = painterResource(R.drawable.ic_fallback_profile),
+            error = painterResource(R.drawable.ic_fallback_profile),
         )
 
         Column {
@@ -265,14 +416,14 @@ fun ProfileHeaderSection(image: Int?, name: String, email: String?, phone: Strin
                 style = MaterialTheme.typography.h5,
             )
             Text(
+                text = username ?: "",
+                style = MaterialTheme.typography.caption
+                    .copy(fontWeight = FontWeight.Medium),
+            )
+            Text(
                 text = email ?: "",
                 style = MaterialTheme.typography.body1,
                 color = MaterialTheme.colors.onBackground.copy(alpha = 0.7f),
-            )
-            Text(
-                text = phone ?: "",
-                style = MaterialTheme.typography.caption
-                    .copy(fontWeight = FontWeight.Medium),
             )
         }
     }
