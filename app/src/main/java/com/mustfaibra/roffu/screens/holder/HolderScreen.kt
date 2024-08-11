@@ -44,6 +44,7 @@ import com.mustfaibra.roffu.screens.checkout.CheckoutScreen
 import com.mustfaibra.roffu.screens.CurrentExchange.CurrentExchangeScreen
 import com.mustfaibra.roffu.screens.FicheEchangeScreen.FicheExchangeScreen
 import com.mustfaibra.roffu.screens.ProposerEchange.ProposerEchangeScreen
+import com.mustfaibra.roffu.screens.editobject.EditObjectScreen
 import com.mustfaibra.roffu.screens.ficheobjet.FicheObjetScreen
 import com.mustfaibra.roffu.screens.home.HomeScreen
 import com.mustfaibra.roffu.screens.locationpicker.LocationPickerScreen
@@ -367,6 +368,13 @@ fun ScaffoldSection(
                 ) { backStackEntry ->
                     val objectId = backStackEntry.arguments?.getInt("objectId") ?: 0
                     FicheObjetScreen(navController = controller, objectId)
+                }
+                composable(
+                    "editobject/{objectId}",
+                    arguments = listOf(navArgument("objectId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val objectId = backStackEntry.arguments?.getInt("objectId") ?: 0
+                    EditObjectScreen(navController = controller, objectId)
                 }
                 composable(
                     "ficheExchange/{exchangeId}",
