@@ -43,6 +43,7 @@ import com.mustfaibra.roffu.screens.bookmarks.BookmarksScreen
 import com.mustfaibra.roffu.screens.cart.CartScreen
 import com.mustfaibra.roffu.screens.checkout.CheckoutScreen
 import com.mustfaibra.roffu.screens.CurrentExchange.CurrentExchangeScreen
+import com.mustfaibra.roffu.screens.ExchangeHistory.ExchangeHistoryScreen
 import com.mustfaibra.roffu.screens.FicheEchangeScreen.FicheExchangeScreen
 import com.mustfaibra.roffu.screens.ProposerEchange.ProposerEchangeScreen
 import com.mustfaibra.roffu.screens.editobject.EditObjectScreen
@@ -375,7 +376,10 @@ fun ScaffoldSection(
                 }
                 composable(Screen.MyObjects.route) {
                     MyObjectsScreen(navController = controller)
-                 }
+                }
+                composable(Screen.ExchangeHistory.route) {
+                    ExchangeHistoryScreen(navController = controller)
+                }
             }
             bottomNavigationContent()
         }

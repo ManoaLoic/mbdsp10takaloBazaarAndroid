@@ -57,6 +57,14 @@ data class Exchange(
     val receiver: CustomUser?,
 
     @Expose
+    @SerializedName("proposer_user_name")
+    val proposerUserName: String?,
+
+    @Expose
+    @SerializedName("receiver_user_name")
+    val receiverUserName: String?,
+
+    @Expose
     @SerializedName("exchange_objects")
     val exchangeObjects: List<ExchangeObject>?
 ){
@@ -68,6 +76,17 @@ data class Exchange(
             "Cancelled" -> "Annulé"
             else -> _status
         }
+    companion object {
+        fun convertStatusToApiFormat(status: String): String {
+            return when (status) {
+                "Accepté" -> "Accepted"
+                "Refusé" -> "Refused"
+                "Annulé" -> "Cancelled"
+                "Tous" -> ""
+                else -> status
+            }
+        }
+    }
 }
 
 @Serializable
@@ -116,4 +135,18 @@ data class ErrorResponse(
 data class CreateResponse(
     val message: String,
     val exchange: Exchange
+)
+
+@Serializable
+data class ExchangeHistoryResponse(
+    val message: String,
+    val data: ExchangeHistoryData
+)
+
+@Serializable
+data class ExchangeHistoryData(
+    val totalItems: Int,
+    val totalPages: Int,
+    val currentPage: Int,
+    val exchanges: List<Exchange>
 )
