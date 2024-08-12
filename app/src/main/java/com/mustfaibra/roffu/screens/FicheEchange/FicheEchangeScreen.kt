@@ -97,10 +97,17 @@ fun FicheExchangeScreen(
             } else {
                 exchange?.let { ex ->
                     val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-                    val outputDateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                    val outputDateFormat = SimpleDateFormat("dd MMM yyyy hh:mm", Locale.getDefault())
                     val formattedDate = try {
                         val date = dateFormat.parse(ex.createdAt)
                         outputDateFormat.format(date)
+                    } catch (e: Exception) {
+                        "Unknown"
+                    }
+
+                    val formattedAppointmentDate = try {
+                        val appointmentDate = ex.appointmentDate?.let { dateFormat.parse(it) }
+                        appointmentDate?.let { outputDateFormat.format(it) } ?: "N/A"
                     } catch (e: Exception) {
                         "Unknown"
                     }
@@ -266,7 +273,7 @@ fun FicheExchangeScreen(
                                     style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
                                 )
                                 Text(
-                                    text = "Date du rendez-vous : ${ex.appointmentDate ?: "N/A"}",
+                                    text = "Date du rendez-vous : ${formattedAppointmentDate ?: "N/A"}",
                                     style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
                                 )
                             }

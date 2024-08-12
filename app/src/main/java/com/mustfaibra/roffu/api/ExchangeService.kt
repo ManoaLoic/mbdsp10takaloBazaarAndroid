@@ -2,6 +2,7 @@ package com.mustfaibra.roffu.api
 
 import com.mustfaibra.roffu.models.CreateResponse
 import com.mustfaibra.roffu.models.Exchange
+import com.mustfaibra.roffu.models.ExchangeHistoryResponse
 import com.mustfaibra.roffu.models.ExchangeResponse
 import com.mustfaibra.roffu.models.ProposeExchangeRequest
 import retrofit2.Response
@@ -27,7 +28,7 @@ interface ExchangeService {
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10,
         @Query("status") status: String = ""
-    ): Response<Any>
+    ): Response<ExchangeHistoryResponse>
 
     @GET("exchanges/myCurrents")
     suspend fun myCurrentExchange(): Response<ExchangeResponse>
