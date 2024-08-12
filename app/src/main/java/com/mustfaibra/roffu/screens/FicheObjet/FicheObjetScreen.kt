@@ -8,19 +8,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
+import com.mustfaibra.roffu.components.ObjectQRModal
 import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.models.Object
 import com.mustfaibra.roffu.sealed.Screen
@@ -62,7 +52,7 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
         },
         bottomBar = {
             obj?.let {
-                if(it.userId != currentUser?.id){
+                if (it.userId != currentUser?.id) {
                     Button(
                         onClick = {
                             navController.navigate("${Screen.ProposerEchange}/${it.id}")
@@ -105,6 +95,7 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
 fun ObjectDetail(obj: Object, navController: NavHostController) {
     val viewModel: FicheObjetViewModel = hiltViewModel()
     val user by viewModel.getCurrentUser().collectAsState(initial = null)
+    var showQRModal by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -216,7 +207,7 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                IconButton(onClick = { /* TODO: Action de partage */ }) {
+                IconButton(onClick = { showQRModal = true }) {
                     Icon(
                         imageVector = Icons.Default.Share,
                         contentDescription = "Partager",
@@ -275,6 +266,12 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
                 style = MaterialTheme.typography.body2
             )
         }
+
+        if (showQRModal) {
+            ObjectQRModal(
+                obj = obj,
+                onDismiss = { showQRModal = false }
+            )
+        }
     }
 }
-

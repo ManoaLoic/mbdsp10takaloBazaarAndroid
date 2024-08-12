@@ -7,7 +7,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,9 +32,12 @@ fun ObjectCard(
     obj: Object,
     isRecent: Boolean,
     navController: NavHostController,
-    disableNavigation: Boolean = false, // Optional parameter with default value
-    onClick: (() -> Unit)? = null // Optional click handler
+    disableNavigation: Boolean = false,
+    onClick: (() -> Unit)? = null
 ) {
+
+    var showQRModal by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,8 +108,33 @@ fun ObjectCard(
                 Text(text = obj.user?.username ?: "", style = MaterialTheme.typography.subtitle1)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = obj.name, style = MaterialTheme.typography.subtitle1)
-            Text(text = obj.category?.name ?: "", style = MaterialTheme.typography.subtitle1, color = Color.Gray)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(10f / 12f)
+                ) {
+                    Text(text = obj.name, style = MaterialTheme.typography.subtitle1)
+                    Text(text = obj.category?.name ?: "", style = MaterialTheme.typography.subtitle1, color = Color.Gray)
+                }
+
+                IconButton(
+                    onClick = { showQRModal = true },
+                    modifier = Modifier.weight(2f / 12f)
+                ) {
+                    Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.Black)
+                }
+            }
         }
     }
+
+    if (showQRModal) {
+        ObjectQRModal(
+            obj = obj,
+            onDismiss = { showQRModal = false }
+        )
+    }
+
 }
