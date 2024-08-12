@@ -8,6 +8,7 @@ import com.mustfaibra.roffu.models.UpdateObjectResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -15,6 +16,11 @@ import retrofit2.http.Query
 import retrofit2.http.QueryMap
 
 interface ObjectService {
+    @PATCH("object/{objectId}/repost")
+    suspend fun repostObject(
+        @Path("objectId") objectId: Int
+    ): Response<Object>
+
     @GET("object/{id}")
     suspend fun getObjectById(@Path("id") id: Int): Response<Object>
 
@@ -42,4 +48,7 @@ interface ObjectService {
         @Query("created_at_start") createdAtStart: String?,
         @Query("created_at_end") createdAtEnd: String?
     ): Response<ObjectListResponse>
+
+    @PATCH("object/{objectId}/remove")
+    suspend fun removeObject(@Path("objectId") objectId: Int): Response<Any>
 }
