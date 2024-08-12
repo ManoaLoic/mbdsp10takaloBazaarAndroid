@@ -3,21 +3,14 @@ package com.mustfaibra.roffu.screens.ficheobjet
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,13 +22,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mustfaibra.roffu.models.Object
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
     val viewModel: FicheObjetViewModel = hiltViewModel()
-    val obj by viewModel.obj.collectAsState()
+    val objectState by viewModel.objectState.collectAsState()
+    val scaffoldState = rememberScaffoldState()
+    val coroutineScope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(objectId) {
         viewModel.fetchObjectById(objectId)
@@ -51,48 +48,126 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
                     }
                 }
             )
-        }
+        },
+        scaffoldState = scaffoldState
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            obj?.let {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 60.dp)
-                ) {
-                    item {
-                        ObjectDetail(obj = it, navController = navController)
+            when (objectState) {
+                is FicheObjetViewModel.ObjectState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is FicheObjetViewModel.ObjectState.Success -> {
+                    var obj by remember { mutableStateOf((objectState as FicheObjetViewModel.ObjectState.Success).obj) }
+                    val categoryColor = Color(0xFFBC8246)
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(bottom = 60.dp)
+                    ) {
+                        ObjectDetail(
+                            obj = obj,
+                            navController = navController,
+                            isLoading = isLoading,
+                            onToggleObjectStatus = {
+                                isLoading = true
+                                if (obj.status == "Available") {
+                                    viewModel.removeObject(
+                                        objectId = obj.id,
+                                        onSuccess = {
+                                            obj = obj.copy(status = "Removed")
+                                            isLoading = false
+                                            coroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar("Objet retiré avec succès")
+                                            }
+                                        },
+                                        onError = { errorMessage ->
+                                            isLoading = false
+                                            coroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar("Erreur : $errorMessage")
+                                            }
+                                        }
+                                    )
+                                } else {
+                                    viewModel.repostObject(
+                                        objectId = obj.id,
+                                        onSuccess = {
+                                            obj = obj.copy(status = "Available")
+                                            isLoading = false
+                                            coroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar("Objet republié avec succès")
+                                            }
+                                        },
+                                        onError = { errorMessage ->
+                                            isLoading = false
+                                            coroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar("Erreur : $errorMessage")
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        )
+
+                        // Date de création
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .background(Color(0xFFD3D3D3), shape = RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(Icons.Default.CalendarToday, contentDescription = "Date Icon")
+                            Spacer(modifier = Modifier.width(4.dp))
+                            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            val formattedDate = dateFormat.format(obj.createdAt)
+                            Text(
+                                text = "publié le $formattedDate",
+                                style = MaterialTheme.typography.body2
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            navController.navigate("exchange/propose/${obj.user?.id}") {
+                                popUpTo("home") { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = categoryColor)
+                    ) {
+                        Text("Proposer un échange", color = Color.White)
                     }
                 }
-
-                Button(
-                    onClick = {
-                        navController.navigate("exchange/propose/${it.user?.id}") {
-                            popUpTo("home") { inclusive = true }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
-                ) {
-                    Text("Proposer un échange", color = Color.White)
+                is FicheObjetViewModel.ObjectState.Error -> {
+                    Text(
+                        text = (objectState as FicheObjetViewModel.ObjectState.Error).message,
+                        color = Color.Red,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
-            } ?: run {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                Text("", modifier = Modifier.align(Alignment.Center))
             }
         }
     }
 }
 
+
 @Composable
-fun ObjectDetail(obj: Object, navController: NavHostController) {
+fun ObjectDetail(
+    obj: Object,
+    navController: NavHostController,
+    isLoading: Boolean,
+    onToggleObjectStatus: () -> Unit
+) {
     val viewModel: FicheObjetViewModel = hiltViewModel()
     val user by viewModel.getCurrentUser().collectAsState(initial = null)
 
@@ -127,19 +202,11 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
                     )
                 }
             }
-            if (obj.status == "Available") {
-                Text(
-                    text = "Disponible",
-                    color = Color(0xFF388E3C),
-                    style = MaterialTheme.typography.body2
-                )
-            } else {
-                Text(
-                    text = "Retiré",
-                    color = Color(0xFFD32F2F),
-                    style = MaterialTheme.typography.body2
-                )
-            }
+            Text(
+                text = if (obj.status == "Available") "Disponible" else "Retiré",
+                color = if (obj.status == "Available") Color(0xFF388E3C) else Color(0xFFD32F2F),
+                style = MaterialTheme.typography.body2
+            )
         }
 
         Card(
@@ -178,23 +245,30 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Icônes à gauche (mettre à jour et supprimer)
+            // Icônes à gauche (mettre à jour et changer le statut)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (user?.id == obj.user?.id) {
+                    if (isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                    } else {
+                        IconButton(
+                            onClick = onToggleObjectStatus,
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (obj.status == "Available") Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = if (obj.status == "Available") "Retirer l'objet" else "Republier l'objet",
+                                tint = Color.Red
+                            )
+                        }
+                    }
                     IconButton(onClick = { /* TODO: Action de mise à jour */ }) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Mettre à jour",
-                            tint = Color.Gray
-                        )
-                    }
-                    IconButton(onClick = { /* TODO: Action de suppression */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Supprimer",
-                            tint = Color.Red
+                            tint = Color.Black
                         )
                     }
                 }
@@ -246,23 +320,5 @@ fun ObjectDetail(obj: Object, navController: NavHostController) {
             style = MaterialTheme.typography.body1,
             modifier = Modifier.padding(8.dp)
         )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(8.dp)
-                .background(Color(0xFFD3D3D3), shape = RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Icon(Icons.Default.CalendarToday, contentDescription = "Date Icon")
-            Spacer(modifier = Modifier.width(4.dp))
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            val formattedDate = dateFormat.format(obj.createdAt)
-            Text(
-                text = "publié le $formattedDate",
-                style = MaterialTheme.typography.body2
-            )
-        }
     }
 }
-
