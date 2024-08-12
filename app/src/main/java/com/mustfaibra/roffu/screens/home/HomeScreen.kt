@@ -1,7 +1,10 @@
 package com.mustfaibra.roffu.screens.home
 
+import android.app.Activity
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +41,10 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import com.google.zxing.integration.android.IntentIntegrator
+import com.journeyapps.barcodescanner.CaptureActivity
 import com.mustfaibra.roffu.R
+import com.mustfaibra.roffu.components.CustomCaptureActivity
 import com.mustfaibra.roffu.components.CustomInputField
 import com.mustfaibra.roffu.components.DrawableButton
 import com.mustfaibra.roffu.components.ObjectCard
@@ -52,12 +59,6 @@ import timber.log.Timber
 fun HomeScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    cartOffset: IntOffset,
-    cartProductsIds: List<Int>,
-    bookmarkProductsIds: List<Int>,
-    onProductClicked: (productId: Int) -> Unit,
-    onCartStateChanged: (productId: Int) -> Unit,
-    onBookmarkStateChanged: (productId: Int) -> Unit,
 ) {
     LaunchedEffect(key1 = Unit) {
         homeViewModel.loadObjects()
@@ -121,6 +122,20 @@ fun HomeScreen(
         mainHandler.post(autoPagerScrollCallback)
     }
 
+    val context = LocalContext.current
+
+    val qrScanLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val intentResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
+        if (intentResult != null && intentResult.contents != null) {
+            val scannedData = intentResult.contents
+            scannedData.toIntOrNull()?.let { objectId ->
+                navController.navigate("ficheobjet/$objectId")
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -137,10 +152,16 @@ fun HomeScreen(
                                 .size(150.dp)
                                 .clip(MaterialTheme.shapes.medium)
                         )
-                        IconButton(onClick = { /* Handle filter click */ }) {
+                        IconButton(onClick = {
+                            val integrator = IntentIntegrator(context as Activity)
+                            integrator.setOrientationLocked(false)
+                            integrator.setBeepEnabled(false)
+                            integrator.captureActivity = CustomCaptureActivity::class.java
+                            qrScanLauncher.launch(integrator.createScanIntent())
+                        }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_filtering_slidebars),
-                                contentDescription = null,
+                                painter = painterResource(id = R.drawable.ic_qr_scan),
+                                contentDescription = "Scan QR",
                                 tint = MaterialTheme.colors.onBackground
                             )
                         }
@@ -268,7 +289,7 @@ fun HomeScreen(
                     }
 
                     item {
-                        if (!isLoading && !objects.isEmpty()) {
+                        if (!isLoading && objects.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(

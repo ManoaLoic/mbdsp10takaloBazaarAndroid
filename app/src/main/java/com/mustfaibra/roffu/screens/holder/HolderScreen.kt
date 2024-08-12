@@ -235,12 +235,6 @@ fun ScaffoldSection(
                 composable(Screen.Home.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     HomeScreen(
-                        cartOffset = cartOffset,
-                        cartProductsIds = productsOnCartIds,
-                        bookmarkProductsIds = productsOnBookmarksIds,
-                        onProductClicked = onShowProductRequest,
-                        onCartStateChanged = onUpdateCartRequest,
-                        onBookmarkStateChanged = onUpdateBookmarkRequest,
                         navController = controller
                     )
                 }
