@@ -66,6 +66,7 @@ import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.launch
 import com.mustfaibra.roffu.screens.myobjects.MyObjectsScreen
 import com.mustfaibra.roffu.screens.register.RegisterScreen
+import com.mustfaibra.roffu.screens.userprofile.UserProfileScreen
 
 @Composable
 fun HolderScreen(
@@ -383,6 +384,12 @@ fun ScaffoldSection(
                 }
                 composable(Screen.ExchangeHistory.route) {
                     ExchangeHistoryScreen(navController = controller)
+                }
+                composable("userprofile/{userId}") { backStackEntry ->
+                    val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
+                    userId?.let {
+                        UserProfileScreen(navController = controller, userId = it)
+                    }
                 }
             }
             bottomNavigationContent()
