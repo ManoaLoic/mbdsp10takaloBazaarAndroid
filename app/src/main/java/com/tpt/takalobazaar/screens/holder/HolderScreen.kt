@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.tpt.takalobazaar.screens.userprofile.UserProfileScreen
 import com.tpt.takalobazaar.api.RetrofitInstance
 import com.tpt.takalobazaar.components.AppBottomNav
 import com.tpt.takalobazaar.components.CustomSnackBar
@@ -292,6 +293,12 @@ fun ScaffoldSection(
                 }
                 composable(Screen.ExchangeHistory.route) {
                     ExchangeHistoryScreen(navController = controller)
+                }
+                composable("userprofile/{userId}") { backStackEntry ->
+                    val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
+                    userId?.let {
+                        UserProfileScreen(navController = controller, userId = it)
+                    }
                 }
             }
             bottomNavigationContent()

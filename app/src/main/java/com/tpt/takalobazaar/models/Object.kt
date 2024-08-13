@@ -50,6 +50,7 @@ data class UpdateObjectResponse(
     val data: Object
 )
 
+@Serializable
 data class ObjectListResponse(
-    val data: ObjectResponse
+    @SerializedName("data") val data: ObjectResponse
 )
