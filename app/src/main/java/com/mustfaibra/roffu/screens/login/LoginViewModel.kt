@@ -13,7 +13,6 @@ import com.mustfaibra.roffu.api.RetrofitInstance
 import com.mustfaibra.roffu.models.LoginRequest
 import com.mustfaibra.roffu.models.LoginResponse
 import com.mustfaibra.roffu.models.LoginUser
-import com.mustfaibra.roffu.repositories.UserRepository
 import com.mustfaibra.roffu.sealed.Error
 import com.mustfaibra.roffu.sealed.UiState
 import com.mustfaibra.roffu.services.SessionService

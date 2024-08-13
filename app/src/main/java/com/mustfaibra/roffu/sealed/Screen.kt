@@ -14,14 +14,6 @@ sealed class Screen(
     object Splash : Screen(
         route = "splash",
     )
-    object Onboard : Screen(
-        route = "onboard",
-        title = R.string.onboard,
-    )
-    object Signup : Screen(
-        route = "signup",
-        title = R.string.signup,
-    )
     object Login : Screen(
         route = "login",
         title = R.string.login,
@@ -36,12 +28,6 @@ sealed class Screen(
         title = R.string.home,
         icon = R.drawable.ic_home_empty,
     )
-    object Bookmark : Screen(
-        route = "bookmark",
-        title = R.string.bookmarks,
-        icon = R.drawable.ic_bookmark,
-    )
-
     object Profile : Screen(
         route = "profile",
         title = R.string.profile,
@@ -58,30 +44,6 @@ sealed class Screen(
         route = "search",
         title = R.string.search,
         icon = R.drawable.ic_search,
-    )
-    object Cart : Screen(
-        route = "cart",
-        title = R.string.cart,
-        icon = R.drawable.ic_shopping_bag,
-    )
-    object Checkout : Screen(
-        route = "checkout",
-        title = R.string.checkout,
-    )
-    object ProductDetails : Screen(
-        route = "product-details/{productId}",
-        title = R.string.product_details,
-    )
-
-    object LocationPicker : Screen(
-        route = "location-picker",
-        title = R.string.delivery_address,
-    )
-
-    object Settings : Screen(
-        route = "settings",
-        title = R.string.settings,
-        icon = R.drawable.ic_settings,
     )
 
     object ExchangeHistory : Screen(

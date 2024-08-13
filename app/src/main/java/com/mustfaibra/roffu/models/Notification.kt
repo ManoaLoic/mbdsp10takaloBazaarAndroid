@@ -14,8 +14,4 @@ data class Notification(
     val targetId: Int,
     val time: String,
 ) {
-    @Ignore val destination: Screen? = when (target) {
-        "product" -> Screen.ProductDetails
-        else -> null
-    }
 }

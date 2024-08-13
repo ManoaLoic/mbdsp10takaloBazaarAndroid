@@ -11,7 +11,6 @@ import com.mustfaibra.roffu.models.ErrorResponse
 import com.mustfaibra.roffu.models.Exchange
 import com.mustfaibra.roffu.models.Object
 import com.mustfaibra.roffu.models.ProposeExchangeRequest
-import com.mustfaibra.roffu.models.User
 import com.mustfaibra.roffu.services.SessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

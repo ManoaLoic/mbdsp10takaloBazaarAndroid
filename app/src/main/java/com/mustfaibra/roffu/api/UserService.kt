@@ -2,7 +2,6 @@ package com.mustfaibra.roffu.api
 
 import com.mustfaibra.roffu.models.CustomUser
 import com.mustfaibra.roffu.models.UpdateUserRequest
-import com.mustfaibra.roffu.models.User
 import com.mustfaibra.roffu.models.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body

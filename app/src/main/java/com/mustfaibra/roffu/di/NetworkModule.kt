@@ -21,6 +21,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideContextInstance(@ApplicationContext cxt: Context) = cxt
+
+    @Provides
+    @Singleton
     fun provideSessionService(@ApplicationContext context: Context): SessionService {
         return SessionService(context)
     }

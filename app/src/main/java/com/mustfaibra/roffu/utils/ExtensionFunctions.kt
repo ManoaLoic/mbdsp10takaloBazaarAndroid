@@ -25,14 +25,6 @@ import androidx.core.text.layoutDirection
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
-import com.mustfaibra.roffu.models.BookmarkItemWithProduct
-import com.mustfaibra.roffu.models.CartItem
-import com.mustfaibra.roffu.models.CartItemWithProduct
-import com.mustfaibra.roffu.models.LocalManufacturer
-import com.mustfaibra.roffu.models.LocalProduct
-import com.mustfaibra.roffu.models.Manufacturer
-import com.mustfaibra.roffu.models.Product
-import com.mustfaibra.roffu.models.ProductDetails
 import com.mustfaibra.roffu.sealed.DataResponse
 import com.mustfaibra.roffu.sealed.Error
 import com.mustfaibra.roffu.sealed.Orientation
@@ -190,53 +182,3 @@ fun String.encryptCardNumber(): String {
 }
 
 fun Double.getDiscountedValue(discount: Int) = this - this.times((discount.div(100)))
-
-fun List<LocalManufacturer>.getStructuredManufacturers(): List<Manufacturer> {
-    return this.map { localManufacturer ->
-        localManufacturer.manufacturer.also {
-            it.products.addAll(localManufacturer.products.getStructuredProducts())
-        }
-    }
-}
-
-fun List<LocalProduct>.getStructuredProducts(): List<Product> {
-    return this.map { localProduct ->
-        localProduct.product.also { product ->
-            product.manufacturer = localProduct.manufacturer
-            product.colors = localProduct.copies
-            product.reviews = localProduct.reviews
-            product.sizes = localProduct.sizes
-        }
-    }
-}
-
-fun LocalProduct.getStructuredProduct() = this.product.also { product ->
-    product.manufacturer = this.manufacturer
-    product.colors = this.copies
-    product.reviews = this.reviews
-    product.sizes = this.sizes
-}
-
-fun MutableList<CartItemWithProduct>.getStructuredCartItems(): List<CartItem> {
-    return this.map {
-        it.details.apply {
-            this.product = it.product.getStructuredProduct()
-        }
-    }
-}
-
-fun MutableList<BookmarkItemWithProduct>.getStructuredBookmarkItems(): List<Product> {
-    return this.map {
-        it.product.getStructuredProduct()
-    }
-}
-
-fun ProductDetails.getStructuredProducts(): Product {
-    return this.product.also {
-        it.colors = this.colors
-        it.reviews = this.reviews
-        it.sizes = this.sizes
-        it.manufacturer = this.manufacturer
-    }
-}
-

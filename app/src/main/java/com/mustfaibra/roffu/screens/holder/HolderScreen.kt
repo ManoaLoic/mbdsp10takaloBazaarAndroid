@@ -34,14 +34,10 @@ import androidx.navigation.navArgument
 import com.mustfaibra.roffu.api.RetrofitInstance
 import com.mustfaibra.roffu.components.AppBottomNav
 import com.mustfaibra.roffu.components.CustomSnackBar
-import com.mustfaibra.roffu.models.CartItem
 import com.mustfaibra.roffu.models.LoginUser
 import com.mustfaibra.roffu.providers.LocalNavHost
 import com.mustfaibra.roffu.screens.ChangePassword.ChangePasswordScreen
 import com.mustfaibra.roffu.screens.ajoutobjet.AjoutObjetScreen
-import com.mustfaibra.roffu.screens.bookmarks.BookmarksScreen
-import com.mustfaibra.roffu.screens.cart.CartScreen
-import com.mustfaibra.roffu.screens.checkout.CheckoutScreen
 import com.mustfaibra.roffu.screens.CurrentExchange.CurrentExchangeScreen
 import com.mustfaibra.roffu.screens.ExchangeHistory.ExchangeHistoryScreen
 import com.mustfaibra.roffu.screens.FicheEchangeScreen.FicheExchangeScreen
@@ -49,16 +45,11 @@ import com.mustfaibra.roffu.screens.ProposerEchange.ProposerEchangeScreen
 import com.mustfaibra.roffu.screens.editobject.EditObjectScreen
 import com.mustfaibra.roffu.screens.ficheobjet.FicheObjetScreen
 import com.mustfaibra.roffu.screens.home.HomeScreen
-import com.mustfaibra.roffu.screens.locationpicker.LocationPickerScreen
 import com.mustfaibra.roffu.screens.login.LoginScreen
 import com.mustfaibra.roffu.screens.notifications.NotificationScreen
 import com.mustfaibra.roffu.screens.objectsearch.ObjectSearchScreen
-import com.mustfaibra.roffu.screens.onboard.OnboardScreen
-import com.mustfaibra.roffu.screens.orderhistory.OrdersHistoryScreen
-import com.mustfaibra.roffu.screens.productdetails.ProductDetailsScreen
 import com.mustfaibra.roffu.screens.profile.ProfileScreen
 import com.mustfaibra.roffu.screens.search.SearchScreen
-import com.mustfaibra.roffu.screens.signup.SignupScreen
 import com.mustfaibra.roffu.screens.splash.SplashScreen
 import com.mustfaibra.roffu.sealed.Screen
 import com.mustfaibra.roffu.utils.getDp
@@ -76,9 +67,6 @@ fun HolderScreen(
     val destinations = remember { listOf(Screen.Home, Screen.Profile) }
     val controller = LocalNavHost.current
     val currentRouteAsState = getActiveRoute(navController = controller)
-    val cartItems = holderViewModel.cartItems
-    val productsOnCartIds = holderViewModel.productsOnCartIds
-    val productsOnBookmarksIds = holderViewModel.productsOnBookmarksIds
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val (snackBarColor, setSnackBarColor) = remember { mutableStateOf(Color.White) }
@@ -104,11 +92,7 @@ fun HolderScreen(
         ScaffoldSection(
             controller = controller,
             scaffoldState = scaffoldState,
-            cartOffset = cartOffset,
             user = user,
-            cartItems = cartItems,
-            productsOnCartIds = productsOnCartIds,
-            productsOnBookmarksIds = productsOnBookmarksIds,
             onStatusBarColorChange = onStatusBarColorChange,
             bottomNavigationContent = {
                 if (currentRouteAsState in destinations.map { it.route } || currentRouteAsState == Screen.AjoutObjet.route) {
@@ -134,11 +118,6 @@ fun HolderScreen(
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             },
-            onBoardFinished = {
-                controller.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Onboard.route) { inclusive = true }
-                }
-            },
             onBackRequested = {
                 if (!controller.popBackStack()) {
                     controller.navigate(Screen.Home.route)
@@ -149,13 +128,6 @@ fun HolderScreen(
                     controller.popBackStack()
                 }
                 controller.navigate(route)
-            },
-            onShowProductRequest = { productId ->
-                controller.navigate(Screen.ProductDetails.route.replace("{productId}", "$productId"))
-            },
-            onUpdateCartRequest = { productId ->
-            },
-            onUpdateBookmarkRequest = { productId ->
             },
             onUserNotAuthorized = {
                 controller.navigate(Screen.Login.route)
@@ -183,19 +155,11 @@ fun HolderScreen(
 fun ScaffoldSection(
     controller: NavHostController,
     scaffoldState: ScaffoldState,
-    cartOffset: IntOffset,
     user: LoginUser?,
-    cartItems: List<CartItem>,
-    productsOnCartIds: List<Int>,
-    productsOnBookmarksIds: List<Int>,
     onStatusBarColorChange: (color: Color) -> Unit,
     onSplashFinished: (nextDestination: Screen) -> Unit,
-    onBoardFinished: () -> Unit,
     onNavigationRequested: (route: String, removePreviousRoute: Boolean) -> Unit,
     onBackRequested: () -> Unit,
-    onUpdateCartRequest: (productId: Int) -> Unit,
-    onUpdateBookmarkRequest: (productId: Int) -> Unit,
-    onShowProductRequest: (productId: Int) -> Unit,
     onUserNotAuthorized: () -> Unit,
     onToastRequested: (message: String, color: Color) -> Unit,
     bottomNavigationContent: @Composable () -> Unit,
@@ -213,14 +177,6 @@ fun ScaffoldSection(
                 composable(Screen.Splash.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     SplashScreen(onSplashFinished = onSplashFinished)
-                }
-                composable(Screen.Onboard.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    OnboardScreen(onBoardFinished = onBoardFinished)
-                }
-                composable(Screen.Signup.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    SignupScreen()
                 }
                 composable(Screen.Login.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
@@ -255,35 +211,6 @@ fun ScaffoldSection(
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     SearchScreen()
                 }
-                composable(Screen.Bookmark.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    BookmarksScreen(
-                        cartOffset = cartOffset,
-                        cartProductsIds = productsOnCartIds,
-                        onProductClicked = onShowProductRequest,
-                        onCartStateChanged = onUpdateCartRequest,
-                        onBookmarkStateChanged = onUpdateBookmarkRequest,
-                    )
-                }
-                composable(Screen.Cart.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    CartScreen(
-                        user = user,
-                        cartItems = cartItems,
-                        onProductClicked = onShowProductRequest,
-                        onUserNotAuthorized = onUserNotAuthorized,
-                        onCheckoutRequest = {
-                            onNavigationRequested(Screen.Checkout.route, false)
-                        },
-                    )
-                }
-                composable(Screen.LocationPicker.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    LocationPickerScreen(
-                        onLocationRequested = {},
-                        onLocationPicked = {}
-                    )
-                }
                 composable(Screen.Profile.route) {
                     user.whatIfNotNull(
                         whatIf = {
@@ -303,24 +230,6 @@ fun ScaffoldSection(
                                 navController = controller
                             )
                         },
-                    )
-                }
-                composable(
-                    route = Screen.ProductDetails.route,
-                    arguments = listOf(navArgument(name = "productId") { type = NavType.IntType })
-                ) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    val productId = it.arguments?.getInt("productId")
-                        ?: throw IllegalArgumentException("Product id is required")
-
-                    ProductDetailsScreen(
-                        productId = productId,
-                        cartItemsCount = cartItems.size,
-                        isOnCartStateProvider = { productId in productsOnCartIds },
-                        isOnBookmarksStateProvider = { productId in productsOnBookmarksIds },
-                        onUpdateCartState = onUpdateCartRequest,
-                        onUpdateBookmarksState = onUpdateBookmarkRequest,
-                        onBackRequested = onBackRequested,
                     )
                 }
                 composable(Screen.AjoutObjet.route) {
