@@ -82,6 +82,7 @@ fun EditObjectScreen(
     Scaffold(
         scaffoldState = scaffoldState
     ) { paddingValues ->
+        Spacer(modifier = Modifier.height(100.dp))
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
