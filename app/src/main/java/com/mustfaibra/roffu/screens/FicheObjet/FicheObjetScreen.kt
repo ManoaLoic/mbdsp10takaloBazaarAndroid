@@ -47,7 +47,6 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
     }
 
     Scaffold(
-        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text("Fiche Objet") },
