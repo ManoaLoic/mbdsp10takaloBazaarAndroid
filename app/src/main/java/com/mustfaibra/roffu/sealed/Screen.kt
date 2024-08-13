@@ -26,6 +26,11 @@ sealed class Screen(
         route = "login",
         title = R.string.login,
     )
+
+    object Register : Screen(
+        route = "register",
+        title = R.string.register,
+    )
     object Home : Screen(
         route = "home",
         title = R.string.home,

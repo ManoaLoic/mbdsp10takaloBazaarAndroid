@@ -65,6 +65,7 @@ import com.mustfaibra.roffu.utils.getDp
 import com.skydoves.whatif.whatIfNotNull
 import kotlinx.coroutines.launch
 import com.mustfaibra.roffu.screens.myobjects.MyObjectsScreen
+import com.mustfaibra.roffu.screens.register.RegisterScreen
 
 @Composable
 fun HolderScreen(
@@ -230,6 +231,14 @@ fun ScaffoldSection(
                             }
                         },
                         onToastRequested = onToastRequested,
+                        navController = controller
+                    )
+                }
+                composable(Screen.Register.route) {
+                    onStatusBarColorChange(MaterialTheme.colors.background)
+                    RegisterScreen(
+                        navController = controller,
+                        onToastRequested = onToastRequested,
                     )
                 }
                 composable(Screen.Home.route) {
@@ -291,6 +300,7 @@ fun ScaffoldSection(
                                     }
                                 },
                                 onToastRequested = onToastRequested,
+                                navController = controller
                             )
                         },
                     )

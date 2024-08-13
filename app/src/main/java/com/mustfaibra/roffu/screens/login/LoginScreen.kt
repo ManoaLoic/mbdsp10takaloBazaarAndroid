@@ -1,6 +1,6 @@
 package com.mustfaibra.roffu.screens.login
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
@@ -13,26 +13,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.mustfaibra.roffu.R
 import com.mustfaibra.roffu.components.CustomButton
 import com.mustfaibra.roffu.components.CustomInputField
-import com.mustfaibra.roffu.components.DrawableButton
 import com.mustfaibra.roffu.sealed.UiState
 import com.mustfaibra.roffu.ui.theme.Dimension
 
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
+    navController: NavHostController,
     onUserAuthenticated: () -> Unit,
     onToastRequested: (message: String, color: Color) -> Unit,
 ) {
@@ -54,13 +56,15 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = stringResource(id = R.string.app_name),
-            style = MaterialTheme.typography.h1.copy(fontSize = 48.sp),
-            color = MaterialTheme.colors.primary,
-            fontFamily = FontFamily.Cursive,
+        Image(
+            painter = painterResource(id = R.drawable.logo_no_background),
+            contentDescription = null,
+            modifier = Modifier
+                .size(200.dp)
+                .clip(MaterialTheme.shapes.medium)
         )
-        Spacer(modifier = Modifier.height(Dimension.pagePadding.times(2)))
+        Spacer(modifier = Modifier.height(Dimension.pagePadding))
+
         /** Login info input section */
         CustomInputField(
             modifier = Modifier
@@ -132,8 +136,9 @@ fun LoginScreen(
             onFocusChange = { },
             onKeyboardActionClicked = { },
         )
-        /** The login button */
+
         Spacer(modifier = Modifier.height(Dimension.pagePadding))
+
         CustomButton(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,6 +178,43 @@ fun LoginScreen(
                         strokeWidth = Dimension.xs
                     )
                 }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(Dimension.pagePadding))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Divider(modifier = Modifier.weight(1f))
+            Text(
+                text = "OU",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            Divider(modifier = Modifier.weight(1f))
+        }
+
+        Spacer(modifier = Modifier.height(Dimension.pagePadding))
+
+        CustomButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = Dimension.elevation,
+                    shape = MaterialTheme.shapes.large,
+                ),
+            shape = MaterialTheme.shapes.large,
+            padding = PaddingValues(Dimension.pagePadding.div(2)),
+            buttonColor = MaterialTheme.colors.onSurface,
+            contentColor = Color.White,
+            text = "S'inscrire",
+            textStyle = MaterialTheme.typography.button,
+            onButtonClicked = {
+                navController.navigate("register")
             }
         )
     }

@@ -127,7 +127,7 @@ data class ProposeExchangeRequest(
 
 @Serializable
 data class ErrorResponse(
-    val message: String,
+    val message: String?,
     val error: String
 )
 
