@@ -114,12 +114,15 @@ fun ProposerEchangeScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 OutlinedButton(
                     onClick = { navController.popBackStack() },
-                    colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        backgroundColor = Color.Black,
+                        contentColor = Color.White
+                    ),
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(imageVector = Icons.Default.Close, contentDescription = "Annuler")
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Annuler", color = Color.White)
+                    Text("Annuler")
                 }
             }
         },

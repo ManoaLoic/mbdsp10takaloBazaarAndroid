@@ -95,14 +95,18 @@ fun AjoutObjetScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = {
-                    showDraftsModal = true
-                    ajoutObjetViewModel.loadDrafts()
-                }) {
+                Button(
+                    onClick = {
+                        showDraftsModal = true
+                        ajoutObjetViewModel.loadDrafts()
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+                ) {
                     Icon(imageVector = Icons.Rounded.Drafts, contentDescription = "Charger Brouillon")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Brouillons")
                 }
+
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(onClick = {
                     if (name.isNotEmpty() && description.isNotEmpty() && selectedCategory != null && selectedImageUri != null) {

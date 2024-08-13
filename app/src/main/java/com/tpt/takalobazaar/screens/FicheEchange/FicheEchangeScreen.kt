@@ -78,7 +78,10 @@ fun FicheExchangeScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                     OutlinedButton(
                         onClick = { /* Handle reject action */ },
-                        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.White),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colors.onSurface,
+                            contentColor = Color.White
+                        ),
                         modifier = Modifier.weight(1f)
                     ) {
                         Icon(imageVector = Icons.Default.Close, contentDescription = "Refuser")
