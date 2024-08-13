@@ -80,6 +80,7 @@ fun AjoutObjetScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
@@ -148,28 +149,33 @@ fun AjoutObjetScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Dropdown for categories
-                Box(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier =
+                    Modifier
+                        .clickable { expanded = !expanded }
+                        .fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = selectedCategory?.name ?: "Sélectionner une catégorie",
                         onValueChange = {},
                         label = { Text("Catégorie") },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expanded = !expanded },
+                            .fillMaxWidth(),
                         readOnly = true,
                         trailingIcon = {
                             Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown", modifier = Modifier.clickable { expanded = !expanded })
                         },
-                        isError = showErrors && selectedCategory == null
+                        isError = showErrors && selectedCategory == null,
                     )
                     DropdownMenu(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                                .clickable { expanded = !expanded }
                     ) {
                         categories.forEach { category ->
                             DropdownMenuItem(onClick = {
                                 selectedCategory = category
-                                expanded = false
+                                expanded = !expanded
                                 Log.d("AjoutObjetScreen", "Selected category: $category")
                             }) {
                                 Text(text = category.name)
