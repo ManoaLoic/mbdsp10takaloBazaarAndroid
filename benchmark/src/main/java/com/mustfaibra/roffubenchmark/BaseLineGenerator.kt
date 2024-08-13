@@ -1,4 +1,4 @@
-package com.mustfaibra.roffubenchmark
+package com.tpt.takalobazaarbenchmark
 
 import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
@@ -16,7 +16,7 @@ class BaseLineGenerator {
 
     @Test
     fun startup() = baselineProfileRule.collectBaselineProfile(
-        packageName = "com.mustfaibra.roffu",
+        packageName = "com.tpt.takalobazaar",
         profileBlock = {
             startActivityAndWait()
             device.waitForIdle()
