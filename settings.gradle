@@ -12,6 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Roffu"
+rootProject.name = "TakaloBazaar"
 include ':app'
 include ':benchmark'

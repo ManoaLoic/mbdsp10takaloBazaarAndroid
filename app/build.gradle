@@ -10,7 +10,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.mustfaibra.roffu"
+        applicationId "com.tpt.takalobazaar"
         minSdk 24
         targetSdk 32
         versionCode 1

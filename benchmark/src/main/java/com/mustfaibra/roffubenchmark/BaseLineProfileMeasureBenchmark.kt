@@ -1,4 +1,4 @@
-package com.mustfaibra.roffubenchmark
+package com.tpt.takalobazaarbenchmark
 
 
 import androidx.benchmark.macro.BaselineProfileMode
@@ -31,7 +31,7 @@ class BaseLineProfileMeasureBenchmark {
 
     private fun startup(compilationMode: CompilationMode) {
         benchmarkRule.measureRepeated(
-            packageName = "com.mustfaibra.roffu",
+            packageName = "com.tpt.takalobazaar",
             metrics = listOf(StartupTimingMetric()),
             iterations = 10,
             startupMode = StartupMode.COLD,

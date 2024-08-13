@@ -1,4 +1,4 @@
-package com.mustfaibra.roffubenchmark
+package com.tpt.takalobazaarbenchmark
 
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
