@@ -189,7 +189,10 @@ fun ProfileScreen(
             ProfileOptionItem(
                 icon = option.icon,
                 title = option.title,
-                onOptionClicked = {},
+                onOptionClicked = {
+                    val userId = profileViewModel.userId!!
+                    onNavigationRequested(Screen.ModifProfil.createRoute(userId), false)
+                },
             )
         }
         item {

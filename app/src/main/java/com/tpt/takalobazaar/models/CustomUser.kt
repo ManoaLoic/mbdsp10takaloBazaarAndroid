@@ -78,8 +78,8 @@ data class UpdateUserRequest(
         val oldPassword: String? = null,
         val password: String? = null,
         val confirmPassword: String? = null,
-        val firstName: String? = null,
-        val lastName: String? = null,
+        val first_name: String? = null,
+        val last_name: String? = null,
         val profilePicture: String? = null,
         val gender: String? = null
 )

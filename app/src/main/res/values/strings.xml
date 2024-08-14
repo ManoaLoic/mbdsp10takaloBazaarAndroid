@@ -55,4 +55,5 @@
     <string name="color">Color</string>
     <string name="onboard">Onboard</string>
     <string name="signup">S\'inscrire</string>
+    <string name="modif_profil">Modifier mon Profil</string>
 </resources>

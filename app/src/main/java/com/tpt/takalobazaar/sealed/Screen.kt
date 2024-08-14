@@ -93,4 +93,12 @@ sealed class Screen(
         title = R.string.proposer_echange,
         icon = R.drawable.ic_exchange
     )
+
+    object ModifProfil : Screen(
+        route = "modifProfil/{userId}",
+        title = R.string.modif_profil,
+        icon = R.drawable.ic_exchange
+    ) {
+        fun createRoute(userId: Int) = "modifProfil/$userId"
+    }
 }

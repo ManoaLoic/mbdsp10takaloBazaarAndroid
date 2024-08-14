@@ -55,6 +55,7 @@ import com.tpt.takalobazaar.screens.splash.SplashScreen
 import com.tpt.takalobazaar.sealed.Screen
 import com.tpt.takalobazaar.utils.getDp
 import com.skydoves.whatif.whatIfNotNull
+import com.tpt.takalobazaar.screens.modifierprofil.ModifierProfilScreen
 import kotlinx.coroutines.launch
 import com.tpt.takalobazaar.screens.myobjects.MyObjectsScreen
 import com.tpt.takalobazaar.screens.register.RegisterScreen
@@ -300,6 +301,14 @@ fun ScaffoldSection(
                         UserProfileScreen(navController = controller, userId = it)
                     }
                 }
+                composable(
+                    route = "modifProfil/{userId}",
+                    arguments = listOf(navArgument("userId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val userId = backStackEntry.arguments?.getInt("userId") ?: 0
+                    ModifierProfilScreen(navController = controller, userId = userId)
+                }
+
             }
             bottomNavigationContent()
         }
