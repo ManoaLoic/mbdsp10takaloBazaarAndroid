@@ -389,6 +389,7 @@ fun ReportObjectModal(
     var selectedType by remember { mutableStateOf(reportTypes.firstOrNull() ?: "") }
     var expanded by remember { mutableStateOf(false) }
     var otherReason by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -429,6 +430,7 @@ fun ReportObjectModal(
                             DropdownMenuItem(onClick = {
                                 selectedType = type
                                 expanded = false
+                                showError = false
                             }) {
                                 Text(text = type)
                             }
@@ -440,13 +442,24 @@ fun ReportObjectModal(
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = otherReason,
-                        onValueChange = { otherReason = it },
+                        onValueChange = {
+                            otherReason = it
+                            showError = false
+                        },
                         label = { Text("Veuillez préciser") },
+                        isError = showError && otherReason.isBlank(),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp), 
+                            .height(80.dp),
                         enabled = !isLoading
                     )
+                    if (showError && otherReason.isBlank()) {
+                        Text(
+                            text = "Ce champ est requis",
+                            color = MaterialTheme.colors.error,
+                            style = MaterialTheme.typography.caption
+                        )
+                    }
                 }
             }
         },
@@ -469,7 +482,13 @@ fun ReportObjectModal(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(
-                    onClick = { onSubmit(selectedType, if (selectedType == "Autre") otherReason else null) },
+                    onClick = {
+                        if (selectedType == "Autre" && otherReason.isBlank()) {
+                            showError = true
+                        } else {
+                            onSubmit(selectedType, if (selectedType == "Autre") otherReason else null)
+                        }
+                    },
                     enabled = !isLoading
                 ) {
                     Text("Signaler")
