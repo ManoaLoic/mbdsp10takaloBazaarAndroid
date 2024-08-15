@@ -325,9 +325,99 @@ fun FicheExchangeScreen(
                 globalError = globalError
             )
         }
+
+        if (showRejectDialog) {
+            RejectExchangeDialog(
+                onDismiss = { showRejectDialog = false },
+                onConfirm = { reason ->
+                    exchangeViewModel.rejectExchange(
+                        exchangeId = exchangeId,
+                        reason = reason,
+                        onSuccess = {
+                            showRejectDialog = false
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar("Échange refusé avec succès!")
+                            }
+                            navController.popBackStack()
+                        },
+                        onError = { errorMessage ->
+                            showRejectDialog = false
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(errorMessage)
+                            }
+                        }
+                    )
+                },
+                isLoading = isLoading,
+                globalError = globalError
+            )
+        }
     }
 }
 
+@Composable
+fun RejectExchangeDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (reason: String) -> Unit,
+    isLoading: Boolean,
+    globalError: String? = null
+) {
+    var reason by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Refuser l'échange") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = reason,
+                    onValueChange = { reason = it },
+                    label = { Text("Motif") },
+                    isError = showError && reason.isBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (showError && reason.isBlank()) {
+                    Text(
+                        text = "Le motif est requis",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+                globalError?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (reason.isNotBlank()) {
+                        onConfirm(reason)
+                    } else {
+                        showError = true
+                    }
+                },
+                enabled = !isLoading
+            ) {
+                Text("Refuser")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss,colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.Black,
+                contentColor = Color.White
+            )) {
+                Text("Annuler")
+            }
+        }
+    )
+}
 
 @Composable
 fun AcceptExchangeDialog(
