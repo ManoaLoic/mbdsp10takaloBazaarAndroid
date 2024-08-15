@@ -1,16 +1,12 @@
 package com.tpt.takalobazaar.screens.ficheobjet
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,15 +31,19 @@ import java.util.*
 fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
     val viewModel: FicheObjetViewModel = hiltViewModel()
     val objectState by viewModel.objectState.collectAsState()
+    val reportTypes by viewModel.reportTypes.collectAsState()
+    val isReporting by viewModel.isReporting.collectAsState()
 
     var currentUser by remember { mutableStateOf<LoginUser?>(null) }
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
+    var showReportModal by remember { mutableStateOf(false) }
 
     LaunchedEffect(objectId) {
         currentUser = viewModel.sessionService.getUser()
         viewModel.fetchObjectById(objectId)
+        viewModel.fetchReportTypes()
     }
 
     Scaffold(
@@ -143,7 +143,8 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
                                         }
                                     )
                                 }
-                            }
+                            },
+                            showReportModal = { showReportModal = true }
                         )
                     }
                 }
@@ -159,15 +160,41 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
             }
         }
     }
-}
 
+    if (showReportModal) {
+        ReportObjectModal(
+            onDismiss = { showReportModal = false },
+            onSubmit = { reportType ->
+                viewModel.reportObject(
+                    objectId = objectId,
+                    reportType = reportType,
+                    onSuccess = {
+                        showReportModal = false
+                        coroutineScope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar("Objet signalé avec succès")
+                        }
+                    },
+                    onError = { errorMessage ->
+                        showReportModal = false
+                        coroutineScope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar("Erreur : $errorMessage")
+                        }
+                    }
+                )
+            },
+            reportTypes = reportTypes,
+            isLoading = isReporting
+        )
+    }
+}
 
 @Composable
 fun ObjectDetail(
     obj: Object,
     navController: NavHostController,
     isLoading: Boolean,
-    onToggleObjectStatus: () -> Unit
+    onToggleObjectStatus: () -> Unit,
+    showReportModal: () -> Unit
 ) {
     val viewModel: FicheObjetViewModel = hiltViewModel()
     val user by viewModel.getCurrentUser().collectAsState(initial = null)
@@ -289,7 +316,7 @@ fun ObjectDetail(
                         tint = Color.Black
                     )
                 }
-                IconButton(onClick = { /** TO DO */ }) {
+                IconButton(onClick = showReportModal) {
                     Icon(
                         imageVector = Icons.Default.Flag,
                         contentDescription = "Signaler",
@@ -349,4 +376,71 @@ fun ObjectDetail(
             )
         }
     }
+}
+
+@Composable
+fun ReportObjectModal(
+    onDismiss: () -> Unit,
+    onSubmit: (reportType: String) -> Unit,
+    reportTypes: List<String>,
+    isLoading: Boolean
+) {
+    var selectedType by remember { mutableStateOf(reportTypes.firstOrNull() ?: "") }
+    var expanded by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text(text = "Signaler l'objet") },
+        text = {
+            Column {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = selectedType,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Type de signalement") },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expanded = !expanded },
+                        enabled = !isLoading
+                    )
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        reportTypes.forEach { type ->
+                            DropdownMenuItem(onClick = {
+                                selectedType = type
+                                expanded = false
+                            }) {
+                                Text(text = type)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSubmit(selectedType) },
+                enabled = !isLoading
+            ) {
+                Text("Signaler")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Annuler")
+            }
+        }
+    )
 }

@@ -3,8 +3,11 @@ package com.tpt.takalobazaar.screens.ficheobjet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tpt.takalobazaar.api.ObjectService
+import com.tpt.takalobazaar.api.ReportService
+import com.tpt.takalobazaar.api.RetrofitManager
 import com.tpt.takalobazaar.models.LoginUser
 import com.tpt.takalobazaar.models.Object
+import com.tpt.takalobazaar.models.ReportRequest
 import com.tpt.takalobazaar.services.SessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +21,18 @@ import javax.inject.Inject
 @HiltViewModel
 class FicheObjetViewModel @Inject constructor(
     private val objectService: ObjectService,
-    public val sessionService: SessionService
+    retrofitManager: RetrofitManager,
+    public val sessionService: SessionService,
 ) : ViewModel() {
-
+    private val reportService: ReportService = retrofitManager.createService(ReportService::class.java)
     private val _objectState = MutableStateFlow<ObjectState>(ObjectState.Loading)
     val objectState: StateFlow<ObjectState> get() = _objectState
+
+    private val _reportTypes = MutableStateFlow<List<String>>(emptyList())
+    val reportTypes: StateFlow<List<String>> get() = _reportTypes
+
+    private val _isReporting = MutableStateFlow(false)
+    val isReporting: StateFlow<Boolean> get() = _isReporting
 
     fun fetchObjectById(objectId: Int) {
         viewModelScope.launch {
@@ -78,6 +88,39 @@ class FicheObjetViewModel @Inject constructor(
         }
     }
 
+    fun fetchReportTypes() {
+        viewModelScope.launch {
+            try {
+                val response = reportService.getTypeReport()
+                if (response.isSuccessful) {
+                    _reportTypes.value = response.body()?.data?.typeReports?.map { it.name } ?: emptyList()
+                } else {
+                    _reportTypes.value = emptyList()
+                }
+            } catch (e: Exception) {
+                _reportTypes.value = emptyList()
+            }
+        }
+    }
+
+    fun reportObject(objectId: Int, reportType: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _isReporting.value = true
+            try {
+                val reportRequest = ReportRequest(objectId, reportType)
+                val response = reportService.reportObject(reportRequest)
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError("Erreur lors du signalement.")
+                }
+            } catch (e: Exception) {
+                onError("Erreur: ${e.message}")
+            } finally {
+                _isReporting.value = false
+            }
+        }
+    }
 
     sealed class ObjectState {
         object Loading : ObjectState()
