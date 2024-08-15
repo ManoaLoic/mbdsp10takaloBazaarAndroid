@@ -1,5 +1,6 @@
 package com.tpt.takalobazaar.screens.FicheEchangeScreen
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,6 +28,7 @@ import com.tpt.takalobazaar.components.ObjectCard
 import com.tpt.takalobazaar.models.Exchange
 import com.tpt.takalobazaar.models.LoginUser
 import com.tpt.takalobazaar.screens.FicheEchange.FicheExchangeViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,8 +40,14 @@ fun FicheExchangeScreen(
 ) {
     val exchange by exchangeViewModel.getExchangeById(exchangeId).collectAsState(initial = null)
     val isLoading by exchangeViewModel.isLoading.collectAsState()
+    var globalError by remember { mutableStateOf<String?>(null) }
 
     var currentUser by remember { mutableStateOf<LoginUser?>(null) }
+    var showAcceptDialog by remember { mutableStateOf(false) }
+    var showRejectDialog by remember { mutableStateOf(false) }
+
+    val scaffoldState = rememberScaffoldState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(exchangeId) {
         exchangeViewModel.fetchExchangeById(exchangeId)
@@ -46,6 +55,7 @@ fun FicheExchangeScreen(
     }
 
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Détails de l'échange") },
@@ -59,7 +69,7 @@ fun FicheExchangeScreen(
             )
         },
         bottomBar = {
-            if(currentUser?.id == exchange?.receiverUserId){
+            if (currentUser?.id == exchange?.receiverUserId) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -67,7 +77,7 @@ fun FicheExchangeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Button(
-                        onClick = { /* Handle accept action */ },
+                        onClick = { showAcceptDialog = true },
                         colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -77,7 +87,7 @@ fun FicheExchangeScreen(
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     OutlinedButton(
-                        onClick = { /* Handle reject action */ },
+                        onClick = { showRejectDialog = true },
                         colors = ButtonDefaults.outlinedButtonColors(
                             backgroundColor = MaterialTheme.colors.onSurface,
                             contentColor = Color.White
@@ -287,5 +297,126 @@ fun FicheExchangeScreen(
                 }
             }
         }
+
+        if (showAcceptDialog) {
+            AcceptExchangeDialog(
+                onDismiss = { showAcceptDialog = false },
+                onConfirm = { meetingPlace, appointmentDate ->
+                    exchangeViewModel.acceptExchange(
+                        exchangeId = exchangeId,
+                        meetingPlace = meetingPlace,
+                        appointmentDate = appointmentDate,
+                        onSuccess = {
+                            showAcceptDialog = false
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar("Échange accepté avec succès!")
+                            }
+                            navController.popBackStack()
+                        },
+                        onError = { errorMessage ->
+                            showAcceptDialog = false
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(errorMessage)
+                            }
+                        }
+                    )
+                },
+                isLoading = isLoading,
+                globalError = globalError
+            )
+        }
     }
+}
+
+
+@Composable
+fun AcceptExchangeDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (meetingPlace: String, appointmentDate: String) -> Unit,
+    isLoading: Boolean,
+    globalError: String? = null
+) {
+    var meetingPlace by remember { mutableStateOf("") }
+    var appointmentDate by remember { mutableStateOf<Date?>(null) }
+    var showError by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            calendar.set(year, month, dayOfMonth)
+            appointmentDate = calendar.time
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Accepter l'échange") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = meetingPlace,
+                    onValueChange = { meetingPlace = it },
+                    label = { Text("Lieu de rendez-vous") },
+                    isError = showError && meetingPlace.isBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (showError && meetingPlace.isBlank()) {
+                    Text(
+                        text = "Le lieu de rendez-vous est requis",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = appointmentDate?.let { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it) } ?: "",
+                    onValueChange = {},
+                    label = { Text("Date de rendez-vous") },
+                    readOnly = true,
+                    trailingIcon = {
+                        IconButton(onClick = { datePickerDialog.show() }) {
+                            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Sélectionner une date")
+                        }
+                    },
+                    isError = showError && appointmentDate == null,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (showError && appointmentDate == null) {
+                    Text(
+                        text = "La date de rendez-vous est requise",
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (meetingPlace.isNotBlank() && appointmentDate != null) {
+                        val formattedDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(appointmentDate!!)
+                        onConfirm(meetingPlace, formattedDate)
+                    } else {
+                        showError = true
+                    }
+                },
+                enabled = !isLoading
+            ) {
+                Text("Accepter")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss,colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.Black,
+                contentColor = Color.White
+            )) {
+                Text("Annuler")
+            }
+        }
+    )
 }

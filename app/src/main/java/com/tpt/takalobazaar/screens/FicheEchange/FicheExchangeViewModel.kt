@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,4 +57,34 @@ class FicheExchangeViewModel @Inject constructor(
         fetchExchangeById(exchangeId)
         return _exchange
     }
+
+    fun acceptExchange(
+        exchangeId: Int,
+        meetingPlace: String,
+        appointmentDate: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val body = mapOf(
+                    "meeting_place" to meetingPlace,
+                    "appointment_date" to appointmentDate
+                )
+
+                val response = exchangeService.acceptExchange(exchangeId.toString(), body)
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    val errorMessage = JSONObject(response.errorBody()?.string()).getString("error")
+                    onError(errorMessage)
+                }
+            } catch (e: Exception) {
+                onError("Erreur: ${e.message}")
+            }
+        }
+    }
+    
+
+
 }
