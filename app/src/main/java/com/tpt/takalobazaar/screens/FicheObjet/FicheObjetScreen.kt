@@ -164,10 +164,11 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
     if (showReportModal) {
         ReportObjectModal(
             onDismiss = { showReportModal = false },
-            onSubmit = { reportType ->
+            onSubmit = { reportType, otherReason ->
+                val finalReason = otherReason ?: reportType
                 viewModel.reportObject(
                     objectId = objectId,
-                    reportType = reportType,
+                    reportType = finalReason,
                     onSuccess = {
                         showReportModal = false
                         coroutineScope.launch {
@@ -381,19 +382,25 @@ fun ObjectDetail(
 @Composable
 fun ReportObjectModal(
     onDismiss: () -> Unit,
-    onSubmit: (reportType: String) -> Unit,
+    onSubmit: (reportType: String, otherReason: String?) -> Unit,
     reportTypes: List<String>,
     isLoading: Boolean
 ) {
     var selectedType by remember { mutableStateOf(reportTypes.firstOrNull() ?: "") }
     var expanded by remember { mutableStateOf(false) }
+    var otherReason by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = { Text(text = "Signaler l'objet") },
         text = {
-            Column {
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .heightIn(min = 200.dp)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -409,7 +416,8 @@ fun ReportObjectModal(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { expanded = !expanded },
+                            .clickable { expanded = !expanded }
+                            .padding(bottom = 12.dp),
                         enabled = !isLoading
                     )
 
@@ -427,20 +435,49 @@ fun ReportObjectModal(
                         }
                     }
                 }
+
+                if (selectedType == "Autre") {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = otherReason,
+                        onValueChange = { otherReason = it },
+                        label = { Text("Veuillez préciser") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp), 
+                        enabled = !isLoading
+                    )
+                }
             }
         },
-        confirmButton = {
-            Button(
-                onClick = { onSubmit(selectedType) },
-                enabled = !isLoading
+        buttons = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text("Signaler")
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Black,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Annuler")
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = { onSubmit(selectedType, if (selectedType == "Autre") otherReason else null) },
+                    enabled = !isLoading
+                ) {
+                    Text("Signaler")
+                }
             }
         },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Annuler")
-            }
-        }
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
     )
 }
