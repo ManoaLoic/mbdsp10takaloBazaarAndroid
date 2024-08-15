@@ -84,7 +84,29 @@ class FicheExchangeViewModel @Inject constructor(
             }
         }
     }
-    
+
+    fun rejectExchange(
+        exchangeId: Int,
+        reason: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val body = mapOf("note" to reason)
+
+                val response = exchangeService.rejectExchange(exchangeId.toString(), body)
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    val errorMessage = JSONObject(response.errorBody()?.string()).getString("error")
+                    onError(errorMessage)
+                }
+            } catch (e: Exception) {
+                onError("Erreur: ${e.message}")
+            }
+        }
+    }
 
 
 }
