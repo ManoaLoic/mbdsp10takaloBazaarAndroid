@@ -97,7 +97,7 @@ fun HolderScreen(
             user = user,
             onStatusBarColorChange = onStatusBarColorChange,
             bottomNavigationContent = {
-                if (currentRouteAsState in destinations.map { it.route } || currentRouteAsState == Screen.AjoutObjet.route) {
+                if ( currentRouteAsState == Screen.Home.route || (currentRouteAsState == Screen.Profile.route && user != null) || currentRouteAsState == Screen.AjoutObjet.route) {
                     AppBottomNav(
                         activeRoute = currentRouteAsState,
                         backgroundColor = MaterialTheme.colors.surface,
