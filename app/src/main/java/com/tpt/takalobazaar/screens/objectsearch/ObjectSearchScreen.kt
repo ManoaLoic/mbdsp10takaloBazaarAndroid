@@ -1,5 +1,6 @@
 package com.tpt.takalobazaar.screens.objectsearch
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -19,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,6 +30,8 @@ import com.tpt.takalobazaar.models.Category
 import com.tpt.takalobazaar.screens.category.CategoryViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun ObjectSearchScreen(
@@ -126,6 +130,15 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
     var orderMenuExpanded by remember { mutableStateOf(false) }
     var selectedOrder by remember { mutableStateOf("le plus récent") }
 
+    // State for date pickers
+    val dateFormatter = remember { java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val apiDateFormatter = remember { java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+
+    val createdAtStartDisplay by remember { derivedStateOf { viewModel.createdAtStart.value.takeIf { it.isNotBlank() }?.let { dateFormatter.format(apiDateFormatter.parse(it)!!) } ?: "" } }
+    val createdAtEndDisplay by remember { derivedStateOf { viewModel.createdAtEnd.value.takeIf { it.isNotBlank() }?.let { dateFormatter.format(apiDateFormatter.parse(it)!!) } ?: "" } }
+
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -172,13 +185,16 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
                         value = selectedCategory?.name ?: "Sélectionner une catégorie",
                         onValueChange = {},
                         label = { Text("Catégorie") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { menuExpanded = true },
+                        modifier = Modifier.fillMaxWidth(),
                         readOnly = true,
                         trailingIcon = {
-                            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown", modifier = Modifier.clickable { menuExpanded = true })
+                            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
                         }
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { menuExpanded = true }
                     )
                     DropdownMenu(
                         expanded = menuExpanded,
@@ -209,19 +225,69 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = viewModel.createdAtStart.value,
-                    onValueChange = { viewModel.createdAtStart.value = it },
-                    label = { Text("Date de création min") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+
+                // Date Picker for createdAtStart
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = createdAtStartDisplay,
+                        onValueChange = {},
+                        label = { Text("Date de création min") },
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable {
+                                DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        val calendar = Calendar.getInstance().apply {
+                                            set(year, month, dayOfMonth)
+                                        }
+                                        val apiDate = apiDateFormatter.format(calendar.time)
+                                        viewModel.createdAtStart.value = apiDate
+                                    },
+                                    Calendar.getInstance().get(Calendar.YEAR),
+                                    Calendar.getInstance().get(Calendar.MONTH),
+                                    Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+                                ).show()
+                            }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = viewModel.createdAtEnd.value,
-                    onValueChange = { viewModel.createdAtEnd.value = it },
-                    label = { Text("Date de création max") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+
+                // Date Picker for createdAtEnd
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = createdAtEndDisplay,
+                        onValueChange = {},
+                        label = { Text("Date de création max") },
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable {
+                                DatePickerDialog(
+                                    context,
+                                    { _, year, month, dayOfMonth ->
+                                        val calendar = Calendar.getInstance().apply {
+                                            set(year, month, dayOfMonth)
+                                        }
+                                        val apiDate = apiDateFormatter.format(calendar.time)
+                                        viewModel.createdAtEnd.value = apiDate
+                                    },
+                                    Calendar.getInstance().get(Calendar.YEAR),
+                                    Calendar.getInstance().get(Calendar.MONTH),
+                                    Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+                                ).show()
+                            }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Dropdown for order selection
@@ -230,13 +296,16 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
                         value = selectedOrder,
                         onValueChange = {},
                         label = { Text("Ordre") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { orderMenuExpanded = true },
+                        modifier = Modifier.fillMaxWidth(),
                         readOnly = true,
                         trailingIcon = {
-                            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown", modifier = Modifier.clickable { orderMenuExpanded = true })
+                            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
                         }
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { orderMenuExpanded = true }
                     )
                     DropdownMenu(
                         expanded = orderMenuExpanded,
@@ -285,3 +354,5 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
         }
     }
 }
+
+
