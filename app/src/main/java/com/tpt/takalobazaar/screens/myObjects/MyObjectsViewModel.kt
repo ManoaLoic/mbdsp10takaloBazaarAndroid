@@ -42,8 +42,8 @@ class MyObjectsViewModel @Inject constructor(
             val user = sessionService.getUser()
             user?.let {
                 val params = mapOf(
-                    "page" to pageNo,
-                    "limit" to pageSize
+                    "page" to pageNo.toString(),
+                    "limit" to pageSize.toString()
                 )
                 val response = objectService.getUserObjects(it.id, params)
                 if (response.isSuccessful) {

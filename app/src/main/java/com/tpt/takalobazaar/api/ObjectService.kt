@@ -31,7 +31,7 @@ interface ObjectService {
     @GET("user/{userId}/objects")
     suspend fun getUserObjects(
         @Path("userId") userId: Int,
-        @QueryMap params: Map<String, Int>
+        @QueryMap params: Map<String, String>
     ): Response<ObjectListResponse>
 
     @POST("objects")
