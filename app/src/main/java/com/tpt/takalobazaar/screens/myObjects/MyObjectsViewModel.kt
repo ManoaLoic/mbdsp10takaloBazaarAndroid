@@ -28,23 +28,31 @@ class MyObjectsViewModel @Inject constructor(
 
     var pageNo: Int = 1
     var pageSize: Int = 20
+    var currentSearchQuery: String? = null
 
-    fun loadUserObjects(resetPage: Boolean = false) {
+    fun loadUserObjects(resetPage: Boolean = false, searchQuery: String? = null) {
         if (_isLoading.value) return
 
         if (resetPage) {
             pageNo = 1
             _userObjects.value = emptyList()
+            _hasMorePages.value = true
         }
 
         _isLoading.value = true
         viewModelScope.launch {
             val user = sessionService.getUser()
             user?.let {
-                val params = mapOf(
+                val params = mutableMapOf(
                     "page" to pageNo.toString(),
                     "limit" to pageSize.toString()
                 )
+
+                searchQuery?.let { query ->
+                    params["name"] = query
+                    currentSearchQuery = query
+                }
+
                 val response = objectService.getUserObjects(it.id, params)
                 if (response.isSuccessful) {
                     response.body()?.data?.let { data ->
@@ -60,11 +68,9 @@ class MyObjectsViewModel @Inject constructor(
     }
 
     fun loadNextPage() {
-        if (_hasMorePages.value) {
+        if (_hasMorePages.value && !_isLoading.value) {
             pageNo++
-            loadUserObjects()
+            loadUserObjects(searchQuery = currentSearchQuery)
         }
     }
 }
-
-
