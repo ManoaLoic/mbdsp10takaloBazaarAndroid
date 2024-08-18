@@ -1,10 +1,12 @@
 package com.tpt.takalobazaar.screens.userprofile
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -14,21 +16,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.tpt.takalobazaar.components.ObjectCard
+import com.tpt.takalobazaar.screens.home.SearchField
+import com.tpt.takalobazaar.screens.profile.ProfileHeaderSection
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun UserProfileScreen(navController: NavHostController, userId: Int) {
     val viewModel: UserProfileViewModel = hiltViewModel()
     val userState by viewModel.userState.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val hasMorePages by viewModel.hasMorePages.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearching by remember { mutableStateOf(false) }
 
     LaunchedEffect(userId) {
         viewModel.fetchUserById(userId)
@@ -51,10 +65,9 @@ fun UserProfileScreen(navController: NavHostController, userId: Int) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (userState is UserProfileViewModel.UserState.Loading) {
+            if (userState is UserProfileViewModel.UserState.Loading || isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-            else if (userState is UserProfileViewModel.UserState.Success) {
+            } else if (userState is UserProfileViewModel.UserState.Success) {
                 val user = (userState as UserProfileViewModel.UserState.Success).user
                 val objects = (userState as UserProfileViewModel.UserState.Success).objects
 
@@ -63,48 +76,29 @@ fun UserProfileScreen(navController: NavHostController, userId: Int) {
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    // Affichage de la photo de profil
-                    Image(
-                        painter = rememberImagePainter(user.profilePicture),
-                        contentDescription = "Photo de profil",
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .align(Alignment.CenterHorizontally),
-                        contentScale = ContentScale.Crop
+                    ProfileHeaderSection(
+                        image = user.profilePicture,
+                        name = "${user.firstName} ${user.lastName}",
+                        email = user.email,
+                        username = user.username,
+                        onImageClicked = { }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Nom d'utilisateur
-                    Text(
-                        text = "${user.firstName} ${user.lastName}",
-                        style = MaterialTheme.typography.h5,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    SearchField(
+                        value = searchQuery,
+                        onValueChange = { newValue -> searchQuery = newValue },
+                        onFocusChange = { /* Handle focus change if needed */ },
+                        onImeActionClicked = {
+                            isSearching = true
+                            viewModel.searchObjects(userId, searchQuery)
+                            isSearching = false
+                        },
+                        placeholder = "Recherche"
                     )
 
-                    // Email
-                    Text(
-                        text = user.email ?: "",
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-
-                    // Sexe
-                    Text(
-                        text = "Sexe: ${if (user.gender.equals("male", ignoreCase = true)) "Homme" else "Femme"}",
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-
-                    // Liste des objets de l'utilisateur
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Ses Objets:",
-                        style = MaterialTheme.typography.h6,
-                        color = Color(0xFF8A8F6A),
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
 
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -121,10 +115,32 @@ fun UserProfileScreen(navController: NavHostController, userId: Int) {
                                 disableNavigation = false
                             )
                         }
+
+                        if (isLoading && hasMorePages) {
+                            item {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp)
+                                        .padding(16.dp),
+                                    strokeWidth = 4.dp
+                                )
+                            }
+                        }
+                    }
+
+                    val listState = rememberLazyGridState()
+
+                    LaunchedEffect(listState) {
+                        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull() }
+                            .collectLatest { lastVisibleItem ->
+                                if (lastVisibleItem != null && lastVisibleItem.index == objects.size - 1 && hasMorePages && !isLoading) {
+                                    viewModel.loadNextPage(userId)
+                                }
+                            }
                     }
                 }
-            }
-            else if (userState is UserProfileViewModel.UserState.Error) {
+            } else if (userState is UserProfileViewModel.UserState.Error) {
                 Text(
                     text = (userState as UserProfileViewModel.UserState.Error).message,
                     color = Color.Red,
