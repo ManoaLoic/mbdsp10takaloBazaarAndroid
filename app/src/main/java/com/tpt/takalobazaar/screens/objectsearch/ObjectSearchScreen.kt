@@ -126,7 +126,7 @@ fun ObjectSearchScreen(
 fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>) {
     var expanded by remember { mutableStateOf(true) }
     var menuExpanded by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf<Category?>(null) }
+    val selectedCategory = categories.find { it.id == viewModel.categoryId } // Link to viewModel's categoryId
     var orderMenuExpanded by remember { mutableStateOf(false) }
     var selectedOrder by remember { mutableStateOf("le plus récent") }
 
@@ -203,7 +203,6 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
                     ) {
                         DropdownMenuItem(onClick = {
                             viewModel.categoryId = null
-                            selectedCategory = null
                             menuExpanded = false
                         }) {
                             Text(text = "Toutes les catégories")
@@ -211,7 +210,6 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
                         categories.forEach { category ->
                             DropdownMenuItem(onClick = {
                                 viewModel.categoryId = category.id
-                                selectedCategory = category
                                 menuExpanded = false
                             }) {
                                 Text(text = category.name)
@@ -354,5 +352,3 @@ fun AccordionFilter(viewModel: ObjectSearchViewModel, categories: List<Category>
         }
     }
 }
-
-

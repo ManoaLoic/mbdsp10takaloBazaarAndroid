@@ -129,7 +129,7 @@ fun ObjectCard(
                 Column(
                     modifier = Modifier.weight(10f / 12f)
                 ) {
-                    Text(text = obj.name, style = MaterialTheme.typography.subtitle1)
+                    Text(text = obj.name, style = MaterialTheme.typography.subtitle1.copy())
                     Text(text = obj.category?.name ?: "", style = MaterialTheme.typography.subtitle1, color = Color.Gray)
                 }
 

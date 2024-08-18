@@ -273,23 +273,48 @@ fun FicheExchangeScreen(
                         }
                         item {
                             Column(modifier = Modifier.padding(8.dp)) {
-                                Text(
-                                    text = "Depuis : $formattedDate",
-                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
-                                )
-                                Text(
-                                    text = "Lieu du rendez-vous : ${ex.meetingPlace ?: "N/A"}",
-                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
-                                )
-                                Text(
-                                    text = "Note : ${ex.note ?: "N/A"}",
-                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
-                                )
-                                Text(
-                                    text = "Date du rendez-vous : ${formattedAppointmentDate ?: "N/A"}",
-                                    style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
-                                )
+                                Row {
+                                    Text(
+                                        text = "Depuis : ",
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    Text(
+                                        text = formattedDate,
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Light)
+                                    )
+                                }
+                                Row {
+                                    Text(
+                                        text = "Lieu du rendez-vous : ",
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    Text(
+                                        text = ex.meetingPlace ?: "N/A",
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Light)
+                                    )
+                                }
+                                Row {
+                                    Text(
+                                        text = "Note : ",
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    Text(
+                                        text = ex.note ?: "N/A",
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Light)
+                                    )
+                                }
+                                Row {
+                                    Text(
+                                        text = "Date du rendez-vous : ",
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    Text(
+                                        text = formattedAppointmentDate ?: "N/A",
+                                        style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Light)
+                                    )
+                                }
                             }
+
                         }
                     }
                 } ?: Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

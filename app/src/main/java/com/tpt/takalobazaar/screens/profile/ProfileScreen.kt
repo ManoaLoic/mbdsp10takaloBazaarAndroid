@@ -273,7 +273,7 @@ fun ProfileOptionItem(icon: Int?, title: Int?, onOptionClicked: () -> Unit) {
         title?.let {
             Text(
                 text = stringResource(id = title),
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.body2,
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colors.onBackground.copy(alpha = 0.7f),
             )
