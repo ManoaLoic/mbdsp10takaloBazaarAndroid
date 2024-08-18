@@ -387,7 +387,7 @@ fun ProfileHeaderSection(
                 TextButton(
                     onClick = { showDialog = false }
                 ) {
-                    Text("Cancel")
+                    Text("Annuler")
                 }
             }
         )

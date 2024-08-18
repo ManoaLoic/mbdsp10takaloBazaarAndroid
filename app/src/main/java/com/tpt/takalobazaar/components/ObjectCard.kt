@@ -33,7 +33,8 @@ fun ObjectCard(
     isRecent: Boolean,
     navController: NavHostController,
     disableNavigation: Boolean = false,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    isMyObject: Boolean = false,
 ) {
 
     var showQRModal by remember { mutableStateOf(false) }
@@ -66,21 +67,33 @@ fun ObjectCard(
                         .height(150.dp),
                     contentScale = ContentScale.Crop
                 )
-                if (isRecent) {
+                if (isRecent || isMyObject) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .offset(x = (-14).dp, y = (-10).dp)
                     ) {
-                        Text(
-                            text = "Récent",
-                            color = Color.Black,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(Color(0xFF7D7A69))
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.subtitle2
-                        )
+                        if(isRecent){
+                            Text(
+                                text = "Récent",
+                                color = Color.Black,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF7D7A69))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.subtitle2
+                            )
+                        }else{
+                            Text(
+                                text = if (obj.status == "Available") "Disponible" else "Retiré",
+                                color = Color.Black,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(if (obj.status == "Available") Color(0xFF7D7A69) else Color(0xFFD32F2F))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.subtitle2
+                            )
+                        }
                     }
                 }
             }
@@ -120,11 +133,18 @@ fun ObjectCard(
                     Text(text = obj.category?.name ?: "", style = MaterialTheme.typography.subtitle1, color = Color.Gray)
                 }
 
-                IconButton(
-                    onClick = { showQRModal = true },
-                    modifier = Modifier.weight(2f / 12f)
+                Box(
+                    modifier = Modifier
+                        .weight(2f / 12f)
+                        .height(48.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.Black)
+                    if(obj.status == "Available"){
+                        IconButton(
+                            onClick = { showQRModal = true },
+                        ) {
+                            Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.Black)
+                        }
+                    }
                 }
             }
         }
