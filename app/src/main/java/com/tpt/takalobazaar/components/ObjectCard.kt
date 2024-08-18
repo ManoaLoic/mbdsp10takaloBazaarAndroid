@@ -133,11 +133,18 @@ fun ObjectCard(
                     Text(text = obj.category?.name ?: "", style = MaterialTheme.typography.subtitle1, color = Color.Gray)
                 }
 
-                IconButton(
-                    onClick = { showQRModal = true },
-                    modifier = Modifier.weight(2f / 12f)
+                Box(
+                    modifier = Modifier
+                        .weight(2f / 12f)
+                        .height(48.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.Black)
+                    if(obj.status == "Available"){
+                        IconButton(
+                            onClick = { showQRModal = true },
+                        ) {
+                            Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.Black)
+                        }
+                    }
                 }
             }
         }

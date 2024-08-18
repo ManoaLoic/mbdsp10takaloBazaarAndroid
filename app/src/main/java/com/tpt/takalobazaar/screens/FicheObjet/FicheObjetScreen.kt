@@ -283,6 +283,15 @@ fun ObjectDetail(
                     if (isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(48.dp))
                     } else {
+                        IconButton(onClick = {
+                            navController.navigate("editobject/${obj.id}")
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Mettre à jour",
+                                tint = Color.Black
+                            )
+                        }
                         IconButton(
                             onClick = onToggleObjectStatus,
                             modifier = Modifier.size(48.dp)
@@ -294,15 +303,6 @@ fun ObjectDetail(
                             )
                         }
                     }
-                    IconButton(onClick = {
-                        navController.navigate("editobject/${obj.id}")
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Mettre à jour",
-                            tint = Color.Black
-                        )
-                    }
                 }
             }
 
@@ -310,12 +310,14 @@ fun ObjectDetail(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                IconButton(onClick = { showQRModal = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "Partager",
-                        tint = Color.Black
-                    )
+                if(obj.status == "Available"){
+                    IconButton(onClick = { showQRModal = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Partager",
+                            tint = Color.Black
+                        )
+                    }
                 }
                 IconButton(onClick = showReportModal) {
                     Icon(
