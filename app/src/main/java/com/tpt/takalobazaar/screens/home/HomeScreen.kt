@@ -187,7 +187,8 @@ fun HomeScreen(
                     onFocusChange = {},
                     onImeActionClicked = {
                         navController.navigate("objectsearch?query=${searchQuery}")
-                    }
+                    },
+                    placeholder = "Qu'est ce que vous recherchez?"
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -320,13 +321,14 @@ fun SearchField(
     onValueChange: (String) -> Unit,
     onFocusChange: (Boolean) -> Unit,
     onImeActionClicked: KeyboardActionScope.() -> Unit,
+    placeholder: String
 ) {
     CustomInputField(
         modifier = Modifier
             .fillMaxWidth(),
         value = value,
         onValueChange = onValueChange,
-        placeholder = "Qu'est ce que vous recherchez?",
+        placeholder = placeholder,
         textStyle = MaterialTheme.typography.caption.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp
