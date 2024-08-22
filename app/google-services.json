@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "577045974044",
+    "project_id": "takalobazaar",
+    "storage_bucket": "takalobazaar.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577045974044:android:8b0b0907ade3e7e41923d9",
+        "android_client_info": {
+          "package_name": "com.tpt.takalobazaar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9qMU17Y5O3PL0-21kXVo-6k8GjlaGXOU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

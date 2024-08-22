@@ -2,10 +2,13 @@ package com.tpt.takalobazaar.screens.login
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.provider.Settings
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.tpt.takalobazaar.api.AuthentificationService
@@ -45,6 +48,8 @@ class LoginViewModel @Inject constructor(
     fun authenticateUser(
         emailOrPhone: String,
         password: String,
+        fcmToken: String,
+        serialNumber: String,
         onAuthenticated: () -> Unit,
         onAuthenticationFailed: () -> Unit,
     ) {
@@ -52,7 +57,13 @@ class LoginViewModel @Inject constructor(
         else {
             uiState.value = UiState.Loading
             viewModelScope.launch {
-                val response = authService.login(LoginRequest(username = emailOrPhone, password = password))
+                val loginRequest = LoginRequest(
+                    username = emailOrPhone,
+                    password = password,
+                    tokken = fcmToken,
+                    serialNumber = serialNumber
+                )
+                val response = authService.login(loginRequest)
                 if (response.isSuccessful) {
                     response.body()?.let { loginResponse ->
                         uiState.value = UiState.Success
@@ -73,6 +84,23 @@ class LoginViewModel @Inject constructor(
                     uiState.value = UiState.Error(error = Error.Network)
                     onAuthenticationFailed()
                 }
+            }
+        }
+    }
+
+    fun getDeviceTokenAndSerialNumber(onTokenAndSerialReceived: (String, String) -> Unit) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                val androidId = Settings.Secure.getString(
+                    context.contentResolver,
+                    Settings.Secure.ANDROID_ID
+                ) // Fetching Android ID
+                Log.w("FCM", "Generated $token $androidId")
+                onTokenAndSerialReceived(token, androidId)
+            } else {
+                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                onTokenAndSerialReceived("", "") // Handle failure gracefully
             }
         }
     }

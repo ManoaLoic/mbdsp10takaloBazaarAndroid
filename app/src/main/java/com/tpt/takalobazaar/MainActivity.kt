@@ -2,10 +2,14 @@ package com.tpt.takalobazaar
 
 import android.Manifest
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +37,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     private val REQUEST_CODE_READ_STORAGE = 1001
+    private val REQUEST_CODE_NOTIFICATION = 1003
     private val PICK_IMAGE_REQUEST = 1002
 
     @Inject
@@ -40,6 +45,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE_NOTIFICATION)
+        }
         setContent {
             /** The status bar color which is dynamic */
             val defaultStatusBarColor = MaterialTheme.colors.background.toArgb()
@@ -73,6 +82,23 @@ class MainActivity : ComponentActivity() {
         RetrofitInstance.initialize(sessionService)
     }
 
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = "your_channel_id"
+            val channelName = "Your Channel Name"
+            val channelDescription = "Your channel description"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+
+            val channel = NotificationChannel(channelId, channelName, importance).apply {
+                description = channelDescription
+            }
+
+            // Register the channel with the system
+            val notificationManager: NotificationManager? = getSystemService(NotificationManager::class.java)
+            notificationManager?.createNotificationChannel(channel)
+        }
+    }
+
     private fun checkPermissionAndPickImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_READ_STORAGE)
@@ -95,6 +121,13 @@ class MainActivity : ComponentActivity() {
                 pickImage()
             } else {
                 // Permission denied
+            }
+        } else if (requestCode == REQUEST_CODE_NOTIFICATION) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                // Permission granted, you can now send notifications
+            } else {
+                // Permission denied, handle accordingly
+                Log.w("MainActivity", "Notification permission denied.")
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.tpt.takalobazaar.screens.login
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.messaging.FirebaseMessaging
 import com.tpt.takalobazaar.R
 import com.tpt.takalobazaar.components.CustomButton
 import com.tpt.takalobazaar.components.CustomInputField
@@ -154,19 +156,20 @@ fun LoginScreen(
             enabled = uiState !is UiState.Loading,
             textStyle = MaterialTheme.typography.button,
             onButtonClicked = {
-                /** Handle the click event of the login button */
-                loginViewModel.authenticateUser(
-                    emailOrPhone = emailOrPhone ?: "",
-                    password = password ?: "",
-                    onAuthenticated = {
-                        /** When user is authenticated, go home or back */
-                        onUserAuthenticated()
-                    },
-                    onAuthenticationFailed = {
-                        /** Do whatever you want when it failed */
-                        onToastRequested("Veuillez remplir tous les champs!", Color.Red)
-                    }
-                )
+                loginViewModel.getDeviceTokenAndSerialNumber { token, serialNumber ->
+                    loginViewModel.authenticateUser(
+                        emailOrPhone = emailOrPhone ?: "",
+                        password = password ?: "",
+                        fcmToken = token,
+                        serialNumber = serialNumber,
+                        onAuthenticated = {
+                            onUserAuthenticated()
+                        },
+                        onAuthenticationFailed = {
+                            onToastRequested("Veuillez remplir tous les champs!", Color.Red)
+                        }
+                    )
+                }
             },
             leadingIcon = {
                 if (uiState is UiState.Loading) {

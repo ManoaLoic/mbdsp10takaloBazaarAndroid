@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 
 data class LoginRequest(
     val username: String,
-    val password: String
+    val password: String,
+    val tokken: String,
+    val serialNumber: String
 )
 
 data class LoginResponse(
