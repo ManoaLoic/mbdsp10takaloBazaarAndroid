@@ -141,7 +141,7 @@ fun ModifierProfilScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = if (selectedSex == "Male") "Masculin" else "Féminin",
+                        value = if (selectedSex == "Male") "Homme" else "Femme",
                         onValueChange = { },
                         readOnly = true,
                         label = { Text("Sexe") },
@@ -165,13 +165,13 @@ fun ModifierProfilScreen(
                             selectedSex = "Male"
                             expanded = false
                         }) {
-                            Text("Masculin")
+                            Text("Homme")
                         }
                         DropdownMenuItem(onClick = {
                             selectedSex = "Female"
                             expanded = false
                         }) {
-                            Text("Féminin")
+                            Text("Femme")
                         }
                     }
                 }
