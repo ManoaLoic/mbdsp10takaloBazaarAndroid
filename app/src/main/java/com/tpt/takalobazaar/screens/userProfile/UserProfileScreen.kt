@@ -27,12 +27,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.tpt.takalobazaar.components.ObjectCard
+import com.tpt.takalobazaar.screens.ficheobjet.FicheObjetViewModel
 import com.tpt.takalobazaar.screens.home.SearchField
 import com.tpt.takalobazaar.screens.profile.ProfileHeaderSection
+import com.tpt.takalobazaar.sealed.Screen
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -58,6 +61,22 @@ fun UserProfileScreen(navController: NavHostController, userId: Int) {
                     }
                 }
             )
+        },
+        bottomBar = {
+            if (userState is UserProfileViewModel.UserState.Success) {
+                val user = (userState as UserProfileViewModel.UserState.Success).user
+                Button(
+                    onClick = {
+                        navController.navigate("${Screen.ProposerEchange}?userId=${user.id}&objectId=0")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFBC8246))
+                ) {
+                    Text("Proposer un échange avec cet utilisateur", color = Color.White, fontSize = 14.sp)
+                }
+            }
         }
     ) { paddingValues ->
         Box(

@@ -207,7 +207,8 @@ fun RegisterScreen(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_profile_empty),
                         contentDescription = null,
-                        tint = MaterialTheme.colors.onBackground.copy(alpha = 0.4f)
+                        tint = MaterialTheme.colors.onBackground.copy(alpha = 0.4f),
+                        modifier = Modifier.clickable { expanded = !expanded }
                     )
                 },
                 textStyle = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.Medium),

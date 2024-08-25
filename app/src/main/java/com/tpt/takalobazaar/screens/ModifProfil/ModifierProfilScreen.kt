@@ -148,7 +148,8 @@ fun ModifierProfilScreen(
                         trailingIcon = {
                             Icon(
                                 imageVector = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                                contentDescription = null
+                                contentDescription = null,
+                                modifier = Modifier.clickable { expanded = !expanded }
                             )
                         },
                         modifier = Modifier

@@ -25,15 +25,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        // Check if message contains a data payload.
-        remoteMessage.data.isNotEmpty().let {
-            Log.d("FCM", "Message data payload: ${remoteMessage.data}")
+        remoteMessage.notification?.let { notification ->
+            val title = notification.title ?: "Notification"
+            val message = notification.body ?: "You have a new message"
 
-            val title = remoteMessage.data["title"] ?: "Notification"
-            val message = remoteMessage.data["message"] ?: "You have a new message"
-            val clickAction = remoteMessage.data["click_action"] ?: "com.tpt.takalobazaar.MAIN"
-
-            sendNotification(title, message, clickAction)
+            // Broadcast the message within the app
+            val intent = Intent("com.tpt.takalobazaar.FCM_MESSAGE")
+            intent.putExtra("title", title)
+            intent.putExtra("message", message)
+            sendBroadcast(intent)
         }
     }
 

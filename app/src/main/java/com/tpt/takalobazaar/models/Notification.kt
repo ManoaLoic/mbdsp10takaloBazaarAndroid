@@ -13,5 +13,10 @@ data class Notification(
     val target: String,
     val targetId: Int,
     val time: String,
-) {
-}
+)
+
+data class NotificationState(
+    val title: String = "",
+    val message: String = "",
+    val isVisible: Boolean = false
+)

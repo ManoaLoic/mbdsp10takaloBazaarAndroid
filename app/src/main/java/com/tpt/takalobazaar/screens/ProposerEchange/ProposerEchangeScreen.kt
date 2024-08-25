@@ -26,24 +26,30 @@ import com.tpt.takalobazaar.models.Object
 @Composable
 fun ProposerEchangeScreen(
     navController: NavHostController,
-    objectId: Int,
+    userId: Int,
+    objectId: Int? = null,
     viewModel: ProposerEchangeViewModel = hiltViewModel()
 ) {
     var isProposing by remember { mutableStateOf(false) }
     var showModal by remember { mutableStateOf(false) }
-    var selectedUserId by remember { mutableStateOf(0) } // This will hold the userId for the modal
+    var selectedUserId by remember { mutableStateOf(0) }
 
     val receiverObjects = remember { mutableStateListOf<Object>() }
     val proposerObjects = remember { mutableStateListOf<Object>() }
 
     val obj by viewModel.obj.collectAsState()
-    val user by viewModel.user.collectAsState()
+    val targetUser by viewModel.targetUser.collectAsState()
+    val sessionUser by viewModel.sessionUser.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     val context = LocalContext.current
 
-    LaunchedEffect(objectId) {
-        viewModel.fetchObjectById(objectId)
+    LaunchedEffect(userId, objectId) {
+        if (objectId == null || objectId == 0) {
+            viewModel.initializeWithoutObject(userId)
+        } else {
+            viewModel.initializeWithObject(userId, objectId)
+        }
     }
 
     LaunchedEffect(obj) {
@@ -63,9 +69,7 @@ fun ProposerEchangeScreen(
             onSuccess = { message, exchange ->
                 isProposing = false
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                navController.navigate("ficheExchange/${exchange?.id}") {
-                    popUpTo("home") { inclusive = true }
-                }
+                navController.navigate("ficheExchange/${exchange?.id}")
             },
             onError = { message ->
                 isProposing = false
@@ -151,7 +155,7 @@ fun ProposerEchangeScreen(
                                     modifier = Modifier.weight(5f / 12f)
                                 ) {
                                     Image(
-                                        painter = rememberImagePainter(user?.profilePicture),
+                                        painter = rememberImagePainter(sessionUser?.profilePicture),
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -159,7 +163,7 @@ fun ProposerEchangeScreen(
                                             .clip(CircleShape)
                                     )
                                     Text(
-                                        text = user?.username ?: "",
+                                        text = sessionUser?.username ?: "",
                                         modifier = Modifier.align(Alignment.CenterHorizontally)
                                     )
                                 }
@@ -175,7 +179,7 @@ fun ProposerEchangeScreen(
                                     modifier = Modifier.weight(5f / 12f)
                                 ) {
                                     Image(
-                                        painter = rememberImagePainter(obj?.user?.profilePicture),
+                                        painter = rememberImagePainter(targetUser?.profilePicture),
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -183,7 +187,7 @@ fun ProposerEchangeScreen(
                                             .clip(CircleShape)
                                     )
                                     Text(
-                                        text = obj?.user?.username ?: "",
+                                        text = targetUser?.username ?: "",
                                         modifier = Modifier.align(Alignment.CenterHorizontally)
                                     )
                                 }
@@ -195,7 +199,7 @@ fun ProposerEchangeScreen(
                                 objects = receiverObjects,
                                 navController = navController,
                                 onAddObjectClick = {
-                                    selectedUserId = obj?.user?.id ?: 0
+                                    selectedUserId = targetUser?.id ?: 0
                                     showModal = true
                                 },
                                 onRemoveObjectClick = { selectedObject ->
@@ -209,7 +213,7 @@ fun ProposerEchangeScreen(
                                 objects = proposerObjects,
                                 navController = navController,
                                 onAddObjectClick = {
-                                    selectedUserId = viewModel.user.value?.id ?: 0
+                                    selectedUserId = sessionUser?.id ?: 0
                                     showModal = true
                                 },
                                 onRemoveObjectClick = { selectedObject ->
@@ -229,9 +233,9 @@ fun ProposerEchangeScreen(
             onDismiss = { showModal = false },
             navController = navController,
             objectService = viewModel.objectService,
-            existingObjects = if (selectedUserId == obj?.user?.id) receiverObjects else proposerObjects,
+            existingObjects = if (selectedUserId == targetUser?.id) receiverObjects else proposerObjects,
             onObjectSelected = { selectedObject ->
-                if (selectedUserId == obj?.user?.id) {
+                if (selectedUserId == targetUser?.id) {
                     receiverObjects.add(selectedObject)
                 } else {
                     proposerObjects.add(selectedObject)

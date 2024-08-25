@@ -66,7 +66,7 @@ fun FicheObjetScreen(navController: NavHostController, objectId: Int) {
                         if (it.userId != currentUser?.id) {
                             Button(
                                 onClick = {
-                                    navController.navigate("${Screen.ProposerEchange}/${it.id}")
+                                    navController.navigate("${Screen.ProposerEchange}?userId=${it.userId}&objectId=${it.id}")
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()

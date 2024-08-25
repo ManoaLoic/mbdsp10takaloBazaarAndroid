@@ -30,45 +30,63 @@ class ProposerEchangeViewModel @Inject constructor(
     private val _object = MutableStateFlow<Object?>(null)
     val obj: StateFlow<Object?> get() = _object
 
-    private val _user = MutableStateFlow<CustomUser?>(null)
-    val user: StateFlow<CustomUser?> get() = _user
+    private val _targetUser = MutableStateFlow<CustomUser?>(null)
+    val targetUser: StateFlow<CustomUser?> get() = _targetUser
+
+    private val _sessionUser = MutableStateFlow<CustomUser?>(null)
+    val sessionUser: StateFlow<CustomUser?> get() = _sessionUser
 
     var isLoading = MutableStateFlow(true)
         private set
 
-    init {
-        // Initialize sessionId with the user in session
-        viewModelScope.launch {
-            val sessionId = sessionService.getUser()?.id
-            sessionId?.let {
-                fetchUserById(it)
-            }
-        }
-    }
-
-    private fun fetchUserById(userId: Int) {
-        viewModelScope.launch {
-            val response = userService.getUserProfile(userId)
-            if (response.isSuccessful) {
-                _user.value = response.body()?.user
-            } else {
-                // Log error response
-                println("Error fetching user: ${response.errorBody()?.string()}")
-            }
-        }
-    }
-
-    fun fetchObjectById(objectId: Int) {
+    // Initialize without object
+    fun initializeWithoutObject(userId: Int) {
         viewModelScope.launch {
             isLoading.value = true
-            val response = objectService.getObjectById(objectId)
-            if (response.isSuccessful) {
-                _object.value = response.body()
-            } else {
-                // Log error response
-                println("Error fetching object: ${response.errorBody()?.string()}")
-            }
+            fetchSessionUser()
+            fetchUserById(userId)
             isLoading.value = false
+        }
+    }
+
+    // Initialize with object
+    fun initializeWithObject(userId: Int, objectId: Int) {
+        viewModelScope.launch {
+            isLoading.value = true
+            fetchSessionUser()
+            fetchUserById(userId)
+            fetchObjectById(objectId)
+            isLoading.value = false
+        }
+    }
+
+    private suspend fun fetchSessionUser() {
+        val sessionId = sessionService.getUser()?.id
+        sessionId?.let {
+            val response = userService.getUserProfile(it)
+            if (response.isSuccessful) {
+                _sessionUser.value = response.body()?.user
+            } else {
+                println("Error fetching session user: ${response.errorBody()?.string()}")
+            }
+        }
+    }
+
+    private suspend fun fetchUserById(userId: Int) {
+        val response = userService.getUserProfile(userId)
+        if (response.isSuccessful) {
+            _targetUser.value = response.body()?.user
+        } else {
+            println("Error fetching user: ${response.errorBody()?.string()}")
+        }
+    }
+
+    private suspend fun fetchObjectById(objectId: Int) {
+        val response = objectService.getObjectById(objectId)
+        if (response.isSuccessful) {
+            _object.value = response.body()
+        } else {
+            println("Error fetching object: ${response.errorBody()?.string()}")
         }
     }
 
@@ -81,8 +99,8 @@ class ProposerEchangeViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading.value = true
 
-            val proposerId = user.value?.id
-            val receiverId = obj.value?.user?.id
+            val proposerId = sessionUser.value?.id
+            val receiverId = targetUser.value?.id
 
             if (proposerId != null && receiverId != null) {
                 val requestBody = ProposeExchangeRequest(
@@ -94,7 +112,7 @@ class ProposerEchangeViewModel @Inject constructor(
                 val response = exchangeService.proposerExchange(requestBody)
 
                 if (response.isSuccessful) {
-                    var responseExchange = response.body()
+                    val responseExchange = response.body()
                     onSuccess("Échange proposé avec succès!", responseExchange?.exchange)
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -116,4 +134,3 @@ class ProposerEchangeViewModel @Inject constructor(
         }
     }
 }
-

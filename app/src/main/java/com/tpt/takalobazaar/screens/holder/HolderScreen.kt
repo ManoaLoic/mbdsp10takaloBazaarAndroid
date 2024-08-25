@@ -205,10 +205,6 @@ fun ScaffoldSection(
                         navController = controller
                     )
                 }
-                composable(Screen.Notifications.route) {
-                    onStatusBarColorChange(MaterialTheme.colors.background)
-                    NotificationScreen()
-                }
                 composable(Screen.Search.route) {
                     onStatusBarColorChange(MaterialTheme.colors.background)
                     SearchScreen()
@@ -281,14 +277,29 @@ fun ScaffoldSection(
                     ObjectSearchScreen(navController = controller, searchQuery = query)
                 }
                 composable(
-                    route = "${Screen.ProposerEchange}/{objectId}",
+                    route = "${Screen.ProposerEchange}?userId={userId}&objectId={objectId}",
                     arguments = listOf(
-                        navArgument("objectId") { type = NavType.IntType }
+                        navArgument("userId") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        },
+                        navArgument("objectId") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        }
                     )
                 ) { backStackEntry ->
-                    val objectId = backStackEntry.arguments?.getInt("objectId") ?: 0
-                    ProposerEchangeScreen(navController = controller, objectId = objectId)
+                    val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
+                    val objectId = backStackEntry.arguments?.getString("objectId")?.toIntOrNull()
+
+                    if (userId != null || objectId != null) {
+                        ProposerEchangeScreen(navController = controller, userId = userId ?: 0, objectId = objectId)
+                    } else {
+                    }
                 }
+
                 composable(Screen.MyObjects.route) {
                     MyObjectsScreen(navController = controller)
                 }
